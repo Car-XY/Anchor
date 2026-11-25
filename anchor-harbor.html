@@ -1,0 +1,787 @@
+<title>Anchor Harbor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: navy chart-room sidebar + pale sea working area; each view is a "chart" of cards */
+:root{
+  --sea:#E7EBE8; --paper:#F5F7F5; --paper-2:#FFFFFF; --ink:#14283B; --muted:#4F6070;
+  --line:#C5CEC9; --line-soft:#DCE2DE; --buoy:#B8432B; --buoy-fg:#FFFFFF;
+  --d1:#9DB8C6; --d2:#3F7C9C; --d3:#14283B; --dawake:#C5CEC9;
+  --hull:#14283B; --hull-2:#1C344B; --hull-line:#4A6680; --hull-fg:#FFFFFF; --hull-muted:#A9BBC8;
+  --side:#14283B; --side-active:#22405A; --side-fg:#DCE4E8;
+  --good:#2F7A55; --focus:#3F7C9C;
+  --f-body:"DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"DM Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --sea:#0D1A26; --paper:#132434; --paper-2:#182C3E; --ink:#E3EAEE; --muted:#9AAEBD;
+  --line:#2A4256; --line-soft:#1E3446; --buoy:#E0694F; --buoy-fg:#14100E;
+  --d1:#3C5F75; --d2:#6FA6C4; --d3:#CFE3EE; --dawake:#2A4256;
+  --hull:#1B3A55; --hull-2:#14304A; --hull-line:#3E5E7A; --hull-fg:#FFFFFF; --hull-muted:#B4C5D1;
+  --side:#08131D; --side-active:#173047; --side-fg:#C9D6DE;
+  --good:#5FBF8C; --focus:#6FA6C4; color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --sea:#0D1A26; --paper:#132434; --paper-2:#182C3E; --ink:#E3EAEE; --muted:#9AAEBD;
+  --line:#2A4256; --line-soft:#1E3446; --buoy:#E0694F; --buoy-fg:#14100E;
+  --d1:#3C5F75; --d2:#6FA6C4; --d3:#CFE3EE; --dawake:#2A4256;
+  --hull:#1B3A55; --hull-2:#14304A; --hull-line:#3E5E7A; --hull-fg:#FFFFFF; --hull-muted:#B4C5D1;
+  --side:#08131D; --side-active:#173047; --side-fg:#C9D6DE;
+  --good:#5FBF8C; --focus:#6FA6C4; color-scheme:dark; }
+
+*{box-sizing:border-box}
+body{background:var(--sea);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.muted{color:var(--muted)}
+
+.shell{display:flex;flex-wrap:wrap;min-height:100%}
+.side{flex:1 1 220px;max-width:248px;background:var(--side);color:var(--side-fg);padding:28px 18px;display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:18px;text-decoration:none}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;color:var(--side-fg);text-decoration:none;font-weight:500}
+.nav a:hover{color:#fff}
+.nav a[aria-current="page"]{color:#fff}
+.nav .pill{position:absolute;inset:0;border-radius:8px;background:var(--side-active);z-index:0}
+.nav a span,.nav a svg{position:relative;z-index:1}
+.side-foot{margin-top:auto;border-top:1px solid var(--hull-line);padding-top:16px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--hull-muted)}
+.linkbtn{background:none;border:none;padding:6px 0;color:var(--side-fg);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left;min-height:32px}
+.themebtn{display:flex;gap:4px}
+.themebtn button{flex:1;min-height:36px;border:1px solid var(--hull-line);background:transparent;color:var(--side-fg);border-radius:6px;cursor:pointer;font-size:12px}
+.themebtn button[aria-pressed="true"]{background:var(--side-active);color:#fff}
+
+.main{flex:999 1 560px;min-width:0;padding-block:32px 56px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+@media (min-width:720px){ .main{padding-left:40px;padding-right:40px} }
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.head h1{font-size:34px;font-weight:700;letter-spacing:-.02em}
+.row{display:flex;flex-wrap:wrap;gap:20px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card.hull{background:var(--hull);border-color:var(--hull);color:var(--hull-fg)}
+.card.hull .eyebrow{color:var(--hull-muted)}
+.f1{flex:1 1 260px}.f2{flex:2 1 300px}.f3{flex:3 1 360px}
+.cardhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+
+.btn{min-height:44px;padding:0 18px;border-radius:22px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink);cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:8px;text-decoration:none;justify-content:center}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--buoy);border-color:var(--buoy);color:var(--buoy-fg);font-weight:700}
+.btn.ghost-dark{background:transparent;border-color:var(--hull-line);color:var(--hull-fg)}
+.btn.small{min-height:36px;padding:0 14px;font-size:13px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:13px;color:var(--muted)}
+.input{min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper-2);color:var(--ink);width:100%}
+textarea.input{padding:10px 14px;min-height:96px;resize:vertical;line-height:1.5}
+.hull .input{background:var(--hull-2);border-color:var(--hull-line);color:var(--hull-fg)}
+.hull .field label{color:var(--hull-muted)}
+.form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.form .field{flex:1 1 160px}
+
+/* route */
+.route-scroll{overflow-x:auto;padding-bottom:4px}
+.route{position:relative;min-width:640px;display:flex;justify-content:space-between;padding:0 4px}
+.route-track{position:absolute;left:50px;right:50px;top:11px;border-top:2px dashed var(--d1)}
+.route-done{position:absolute;left:50px;right:50px;top:10px;height:4px;background:var(--ink);border-radius:2px;transform-origin:left}
+.wp{position:relative;width:92px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;background:none;border:none;padding:0;cursor:pointer;color:var(--ink)}
+.wp .dot{width:24px;height:24px;border-radius:12px;background:var(--paper);border:2px solid var(--d1)}
+.wp.done .dot{background:var(--ink);border-color:var(--ink)}
+.wp.next .dot{border:6px solid var(--buoy)}
+.wp .t{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.wp .n{font-size:13px;font-weight:500;line-height:1.25}
+.route-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line-soft);padding-top:12px;font-size:13px;color:var(--muted)}
+.route-foot strong{color:var(--ink)}
+
+/* depth */
+.depth{display:flex;align-items:flex-start;height:96px;border-top:2px solid var(--ink)}
+.depth div{transform-origin:top;border-radius:0 0 3px 3px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+.bignum{font-size:32px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+.bar{height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden}
+.bar > div{height:6px;background:var(--ink);border-radius:3px;transform-origin:left}
+.list{display:flex;flex-direction:column}
+.li{display:flex;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line-soft)}
+.li:first-child{border-top:none}
+
+/* habits table */
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--line-soft)}
+th{font-family:var(--f-mono);font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+td.name,th.name{text-align:left;padding-left:0}
+.cell{width:30px;height:30px;border-radius:15px;border:1.5px solid var(--line);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.cell.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.cell.today{border-color:var(--buoy);border-width:2px}
+.cell.on.today{background:var(--buoy);border-color:var(--buoy);color:var(--buoy-fg)}
+.check{width:28px;height:28px;flex:none;border-radius:8px;border:1.5px solid var(--muted);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.check.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .dow{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase}
+.day{min-height:72px;border:1px solid var(--line-soft);background:var(--paper-2);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;cursor:pointer;text-align:left;color:var(--ink)}
+.day.out{opacity:.45}
+.day.sel{border-color:var(--ink);border-width:2px}
+.day .dn{font-family:var(--f-mono);font-size:12px}
+.day.isToday .dn{background:var(--buoy);color:var(--buoy-fg);border-radius:10px;padding:0 6px}
+.dots{display:flex;gap:3px;flex-wrap:wrap}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--d2);display:block}
+.ring{height:4px;width:100%;background:var(--line-soft);border-radius:2px;margin-top:auto;overflow:hidden}
+.ring b{display:block;height:4px;background:var(--ink)}
+
+/* sleep week chart */
+.wchart{position:relative;height:150px;display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--ink)}
+.wchart .target{position:absolute;left:0;right:0;border-top:1px dashed var(--muted)}
+.wchart .target span{position:absolute;right:0;top:-18px;font-family:var(--f-mono);font-size:11px;color:var(--muted);background:var(--paper);padding-left:4px}
+.wchart .b{flex:1;background:var(--d1);border-radius:4px 4px 0 0;transform-origin:bottom;position:relative}
+.wchart .b.last{background:var(--d3)}
+.wlabels{display:flex;gap:12px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.wlabels span{flex:1;text-align:center}
+
+.chatlog{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding-right:4px}
+.msg{max-width:80%;padding:12px 16px;border-radius:14px;line-height:1.5;white-space:pre-line}
+.msg.me{align-self:flex-end;background:var(--ink);color:var(--paper);border-bottom-right-radius:4px}
+.msg.nav{align-self:flex-start;background:var(--paper-2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.note{font-size:13px;color:var(--muted);border-left:0;background:var(--paper-2);border:1px dashed var(--line);border-radius:10px;padding:10px 14px}
+.hull .note{background:transparent;border-color:var(--hull-line);color:var(--hull-muted)}
+.entry{padding:14px 0;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:6px}
+.entry:first-child{border-top:none}
+.tag{display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;background:var(--line-soft);color:var(--ink)}
+.tag.warn{background:var(--buoy);color:var(--buoy-fg)}
+.tag.ok{background:var(--good);color:var(--paper)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:760px){
+  .side{flex-basis:100%;max-width:none;padding:14px 16px;gap:12px;flex-direction:row;flex-wrap:wrap;align-items:center}
+  .nav{flex-direction:row;overflow-x:auto;flex-basis:100%;gap:2px}
+  .nav a{white-space:nowrap;padding:10px 12px}
+  .side-foot{display:none}
+  .head h1{font-size:28px}
+  .msg{max-width:92%}
+}
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
+</style>
+
+<div id="root"></div>
+
+<script>
+/* Some UMD builds read process.env */
+window.process = window.process || { env: { NODE_ENV: "production" } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+(function(){
+  var R = window.React;
+  var j = function(type, props, key){ var p = Object.assign({}, props); if (key !== undefined) p.key = key; return R.createElement(type, p); };
+  var rt = { jsx: j, jsxs: j, Fragment: R.Fragment };
+  window.jsxRuntime = window.jsxRuntime || rt;
+  window.ReactJSXRuntime = window.ReactJSXRuntime || rt;
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/framer-motion@11.11.17/dist/framer-motion.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+(function(){
+const { useState, useEffect, useMemo, useRef } = React;
+const h = (type, props, ...kids) => {
+  if (props && ("class" in props || "for" in props)) { props = { ...props }; if ("class" in props) { props.className = props.class; delete props.class; } if ("for" in props) { props.htmlFor = props["for"]; delete props["for"]; } }
+  return React.createElement(type, props, ...kids);
+};
+const html = htm.bind(h);
+
+/* ---------- Motion (with a plain fallback so the app still works if the library fails to load) ---------- */
+const M = window.Motion || window.FramerMotion || {};
+const MOTION_PROPS = ["initial","animate","exit","transition","layout","layoutId","whileHover","whileTap","variants","custom"];
+const cache = {};
+const motion = M.motion || new Proxy({}, { get(_, tag){
+  if (!cache[tag]) cache[tag] = React.forwardRef((p, ref) => { const r = {}; for (const k in p) if (!MOTION_PROPS.includes(k)) r[k] = p[k]; r.ref = ref; return h(tag, r); });
+  return cache[tag];
+}});
+const AnimatePresence = M.AnimatePresence || (({children}) => children);
+const MotionConfig = M.MotionConfig || (({children}) => children);
+const LayoutGroup = M.LayoutGroup || (({children}) => children);
+const spring = { type: "spring", stiffness: 380, damping: 30 };
+
+/* ---------- Dates & time helpers ---------- */
+const DAY = 864e5;
+const sod = (d) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const TODAY = sod(new Date());
+const addDays = (d, n) => { const x = sod(d); return new Date(x.getFullYear(), x.getMonth(), x.getDate() + n); };
+const key = (d) => { const x = new Date(d); return x.getFullYear() + "-" + String(x.getMonth()+1).padStart(2,"0") + "-" + String(x.getDate()).padStart(2,"0"); };
+const fromKey = (k) => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
+const TK = key(TODAY);
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const tm = (s) => { const [a,b] = s.split(":").map(Number); return a*60 + b; };
+const fmtT = (m) => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,"0") + ":" + String(m%60).padStart(2,"0"); };
+const fmtH = (mins) => { const s = mins < 0 ? "-" : ""; mins = Math.abs(Math.round(mins)); return s + Math.floor(mins/60) + "h " + String(mins%60).padStart(2,"0") + "m"; };
+const sleepMins = (n) => { let b = tm(n.bed), w = tm(n.wake); return w > b ? w - b : w + 1440 - b; };
+const bedNorm = (n) => { const b = tm(n.bed); return b < 720 ? b + 1440 : b; };
+const shortDate = (k) => { const d = fromKey(k); return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()].slice(0,3); };
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+/* ---------- Example data, built around today's date ---------- */
+function seed(){
+  const pattern = {
+    run:      [1,1,1,1,1,1,1,1,0,1,1,1,1,1],
+    meditate: [1,0,1,1,0,1,1,0,1,1,1,0,1,1],
+    vitamins: [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    water:    [1,1,0,1,1,1,0,1,0,1,1,1,0,0],
+    read:     [1,0,1,1,0,1,0,1,1,0,1,1,0,0],
+    journal:  [0,1,0,0,1,0,0,0,1,1,1,0,0,0],
+    phone:    [0,0,1,0,1,0,0,1,0,0,1,1,0,0]
+  };
+  const mk = (id, name, time) => {
+    const log = {};
+    pattern[id].forEach((v, i) => { if (v) log[key(addDays(TODAY, i - 13))] = true; });
+    return { id, name, time, log };
+  };
+  const habits = [
+    mk("run","Morning run","07:50"), mk("meditate","Meditate 10 min","08:40"), mk("vitamins","Vitamins","08:45"),
+    mk("water","Drink 2 L water","12:00"), mk("read","Read 20 pages","21:00"), mk("journal","Journal","22:30"), mk("phone","Phone away","23:00")
+  ];
+  const goals = [
+    { id: uid(), name: "Finish thesis chapter 2", due: key(addDays(TODAY, 26)), progress: 62, note: "3 sections left" },
+    { id: uid(), name: "Run a sub-25 5K", due: key(addDays(TODAY, 54)), progress: 40, note: "Best so far 27:10" },
+    { id: uid(), name: "Read 24 books this year", due: key(new Date(TODAY.getFullYear(), 11, 31)), progress: 79, note: "19 of 24" }
+  ];
+  const ev = (d, time, title) => ({ id: uid(), date: key(addDays(TODAY, d)), time, title });
+  const events = [
+    ev(-3,"14:00","Lab sync"), ev(-1,"11:00","Coffee with Maya"), ev(0,"10:30","Deep work · thesis"), ev(0,"14:00","Lab sync"), ev(0,"17:00","Gym"),
+    ev(1,"09:00","Supervisor meeting"), ev(2,"18:30","Tempo run · 5 km"), ev(4,"23:59","Chapter 2 draft to Dr. Lee"), ev(6,"10:00","Weekly review"), ev(9,"15:00","Dentist")
+  ];
+  const nightsRaw = [["23:40","07:05",4],["00:15","07:20",3],["23:55","07:10",4],["01:10","07:15",2],["00:20","07:00",3],["23:30","07:50",5],["00:48","07:40",3]];
+  const sleep = nightsRaw.map(([bed, wake, quality], i) => ({ id: uid(), date: key(addDays(TODAY, i - 6)), bed, wake, quality, source: "Manual" }));
+  sleep[6].stages = [["a",2],["l",5],["d",9],["l",4],["r",4],["l",7],["d",6],["l",6],["r",6],["a",1],["l",8],["d",3],["r",7],["l",6],["r",5],["a",2]];
+  sleep[6].source = "Example watch data";
+  const logbook = [
+    { id: uid(), date: key(addDays(TODAY,-1)), prompt: "What pulled you off course today?", text: "Spent the afternoon on email instead of the outline. Phone was on the desk the whole time." },
+    { id: uid(), date: key(addDays(TODAY,-3)), prompt: "What went well this week?", text: "Ran every morning even when it was raining. Lab sync went better than I expected." }
+  ];
+  return { v: 1, habits, goals, events, sleep, logbook, settings: { sleepTarget: 450, wakeTarget: "07:30", wakeWindow: 30 } };
+}
+
+const STORE = "anchor-harbor-v1";
+function load(){ try { const s = localStorage.getItem(STORE); if (s) { const d = JSON.parse(s); if (d && d.v === 1) return d; } } catch(e){} return seed(); }
+function save(d){ try { localStorage.setItem(STORE, JSON.stringify(d)); } catch(e){} }
+
+/* ---------- Analysis used by the Navigator (all computed from the data on this page) ---------- */
+function lastN(arr, n){ return [...arr].sort((a,b) => a.date < b.date ? -1 : 1).slice(-n); }
+function sleepStats(data){
+  const nights = lastN(data.sleep, 7);
+  if (!nights.length) return null;
+  const mins = nights.map(sleepMins);
+  const avg = mins.reduce((a,b) => a+b, 0) / mins.length;
+  const beds = nights.map(bedNorm);
+  const bAvg = beds.reduce((a,b) => a+b, 0) / beds.length;
+  const sd = Math.sqrt(beds.reduce((a,b) => a + (b-bAvg)**2, 0) / beds.length);
+  const target = data.settings.sleepTarget;
+  const suggestBed = tm(data.settings.wakeTarget) - target - 15;
+  const shortRun = (() => { let c = 0; for (let i = mins.length-1; i >= 0 && mins[i] < 420; i--) c++; return c; })();
+  return { nights, mins, avg, sd, bAvg, target, suggestBed, last: nights[nights.length-1], lastMins: mins[mins.length-1], shortRun };
+}
+function habitStats(data){
+  return data.habits.map(hb => {
+    let done7 = 0; for (let i = 1; i <= 7; i++) if (hb.log[key(addDays(TODAY,-i))]) done7++;
+    let streak = 0; for (let i = hb.log[TK] ? 0 : 1; ; i++) { if (hb.log[key(addDays(TODAY,-i))]) streak++; else break; }
+    return { ...hb, done7, streak, today: !!hb.log[TK] };
+  });
+}
+function goalStats(data){
+  return data.goals.map(g => {
+    const days = Math.max(1, Math.round((fromKey(g.due) - TODAY) / DAY));
+    return { ...g, days, perDay: (100 - g.progress) / days };
+  }).sort((a,b) => a.days - b.days);
+}
+function insights(data){
+  const out = [];
+  const s = sleepStats(data);
+  if (s && s.avg < s.target) out.push({ id: "sleep", tone: "warn", title: "Sleep is averaging " + fmtH(s.avg),
+    body: fmtH(s.target - s.avg) + " under your " + fmtH(s.target) + " target this week" + (s.shortRun >= 2 ? ", and the last " + s.shortRun + " nights were under 7 hours" : "") + ". To wake at " + data.settings.wakeTarget + " rested, aim to be in bed by " + fmtT(s.suggestBed) + ".",
+    action: { label: "Open sleep", href: "#sleep" } });
+  if (s && s.sd > 35) out.push({ id: "bed", tone: "info", title: "Your bedtime moves around a lot",
+    body: "It varied by about " + Math.round(s.sd) + " minutes across the week. A steadier bedtime usually helps more than one long lie-in.", action: { label: "See nights", href: "#sleep" } });
+  const hs = habitStats(data);
+  const weakest = [...hs].sort((a,b) => a.done7 - b.done7)[0];
+  if (weakest && weakest.done7 < 5) {
+    const earlier = fmtT(tm(weakest.time) - 30);
+    out.push({ id: "habit", tone: "info", title: weakest.name + ": " + weakest.done7 + " of the last 7 days",
+      body: "It's your least consistent habit. Moving it 30 minutes earlier, to " + earlier + ", gives it a better chance before the evening fills up.",
+      move: { id: weakest.id, time: earlier } });
+  }
+  const best = [...hs].sort((a,b) => b.streak - a.streak)[0];
+  if (best && best.streak >= 5) out.push({ id: "streak", tone: "ok", title: best.name + ": " + best.streak + "-day streak", body: "Your most reliable habit right now. Stacking a new habit straight after it is the easiest way to add one.", action: { label: "Open habits", href: "#habits" } });
+  const g = goalStats(data).find(x => x.progress < 100);
+  if (g) out.push({ id: "goal", tone: g.perDay > 2.5 ? "warn" : "info", title: g.name + " · " + g.days + " days left",
+    body: "You need about " + g.perDay.toFixed(1) + "% a day to finish by " + shortDate(g.due) + ". " + (g.perDay > 2.5 ? "That's a steep pace; consider a deep-work block every day this week." : "That's a manageable pace."), action: { label: "Open goals", href: "#goals" } });
+  return out;
+}
+function answer(q, data){
+  const t = q.toLowerCase();
+  const s = sleepStats(data), hs = habitStats(data), gs = goalStats(data);
+  const sleepA = () => s ? "Last night: " + fmtH(s.lastMins) + " (" + s.last.bed + " to " + s.last.wake + ").\nWeek average: " + fmtH(s.avg) + " against a " + fmtH(s.target) + " target.\nSuggested bedtime tonight: " + fmtT(s.suggestBed) + "." : "No sleep logged yet. Add last night on the Sleep page.";
+  const habitA = () => { const done = hs.filter(x => x.today).length; const w = [...hs].sort((a,b) => a.done7 - b.done7)[0]; return "Today: " + done + " of " + hs.length + " habits done.\nMost consistent: " + [...hs].sort((a,b) => b.streak - a.streak)[0].name + ".\nNeeds attention: " + w.name + " (" + w.done7 + "/7 last week)."; };
+  const goalA = () => gs.length ? gs.map(g => g.name + ": " + g.progress + "%, " + g.days + " days left").join("\n") : "No goals yet.";
+  if (/sleep|tired|bed|wake/.test(t)) return sleepA();
+  if (/habit|streak|routine/.test(t)) return habitA();
+  if (/goal|thesis|deadline|progress/.test(t)) return goalA();
+  if (/week|how am i|summary|doing/.test(t)) return sleepA() + "\n\n" + habitA() + "\n\n" + goalA();
+  return "In offline mode I can answer about your sleep, habits, goals, or your week. Try \"How is my sleep?\" Full conversations need the Claude connection on your backend.";
+}
+
+/* ---------- Icons (stroke) ---------- */
+const I = (d) => html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = {
+  today: I(html`<circle cx="12" cy="12" r="8"></circle><path d="M12 4v3M12 17v3M4 12h3M17 12h3"></path>`),
+  habits: I(html`<path d="M5 12.5l4 4L19 7"></path>`),
+  goals: I(html`<path d="M6 21V4"></path><path d="M6 4h11l-2.5 4L17 12H6"></path>`),
+  calendar: I(html`<rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>`),
+  sleep: I(html`<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"></path>`),
+  logbook: I(html`<path d="M6 4h11a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1z"></path><path d="M9 8h6M9 12h6"></path>`),
+  navigator: I(html`<circle cx="12" cy="12" r="8"></circle><path d="M15 9l-2 4-4 2 2-4z"></path>`)
+};
+const CheckMark = ({on}) => html`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><${motion.path} d="M5 12.5l4.5 4.5L19 7" initial=${false} animate=${{ pathLength: on ? 1 : 0, opacity: on ? 1 : 0 }} transition=${{ duration: .2 }}></${motion.path}></svg>`;
+
+/* ---------- Routing ---------- */
+const ROUTES = [["today","Today"],["habits","Habits"],["goals","Goals"],["calendar","Calendar"],["sleep","Sleep"],["logbook","Log book"],["navigator","Navigator"]];
+const IDS = ROUTES.map(r => r[0]);
+function useRoute(){
+  const get = () => { const x = location.hash.slice(1); return IDS.includes(x) ? x : "today"; };
+  const [r, setR] = useState(get);
+  useEffect(() => { const f = () => { setR(get()); window.scrollTo(0, 0); }; addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
+  return r;
+}
+
+/* ---------- Shared pieces ---------- */
+function Bar({ pct }){ return html`<div class="bar"><${motion.div} initial=${{ scaleX: 0 }} animate=${{ scaleX: Math.min(100, pct) / 100 }} transition=${{ duration: .7, ease: [.2,.7,.2,1] }} style=${{ width: "100%" }}></${motion.div}></div>`; }
+
+function DepthChart({ night, height = 96 }){
+  const H = { a: .1, l: .38, r: .6, d: 1 }, C = { a: "var(--dawake)", l: "var(--d1)", r: "var(--d2)", d: "var(--d3)" };
+  const dur = { a: 0, l: 0, r: 0, d: 0 }, total = night.stages.reduce((a, s) => a + s[1], 0), mins = sleepMins(night);
+  night.stages.forEach(([k, w]) => dur[k] += w / total * mins);
+  return html`<div class="field" style=${{ gap: "10px" }}>
+    <div class="depth" style=${{ height: height + "px" }} role="img" aria-label=${"Sleep stages from " + night.bed + " to " + night.wake}>
+      ${night.stages.map(([k, w], i) => html`<${motion.div} key=${i} initial=${{ scaleY: 0 }} animate=${{ scaleY: 1 }} transition=${{ delay: .02 * i, duration: .45, ease: [.2,.7,.2,1] }} style=${{ flex: w + " 1 0", height: (H[k] * height) + "px", background: C[k] }}></${motion.div}>`)}
+    </div>
+    <div class="mono muted" style=${{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}><span>${night.bed}</span><span>${night.wake}</span></div>
+    <div class="legend">
+      <span><i class="sw" style=${{ background: "var(--d1)" }}></i>Light ${fmtH(dur.l)}</span>
+      <span><i class="sw" style=${{ background: "var(--d2)" }}></i>REM ${fmtH(dur.r)}</span>
+      <span><i class="sw" style=${{ background: "var(--d3)" }}></i>Deep ${fmtH(dur.d)}</span>
+    </div>
+  </div>`;
+}
+
+function Insight({ it, actions, dark }){
+  return html`<div style=${{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    <div style=${{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+      ${it.tone === "warn" && html`<span class="tag warn">Needs attention</span>`}
+      ${it.tone === "ok" && html`<span class="tag ok">Going well</span>`}
+      <strong style=${{ fontSize: "17px" }}>${it.title}</strong>
+    </div>
+    <p style=${{ margin: 0, maxWidth: "62ch", color: dark ? "var(--hull-muted)" : "var(--muted)" }}>${it.body}</p>
+    <div class="btns">
+      ${it.move && html`<button type="button" class="btn small primary" onClick=${() => actions.setHabitTime(it.move.id, it.move.time)}>Move to ${it.move.time}</button>`}
+      ${it.action && html`<a class=${"btn small" + (dark ? " ghost-dark" : "")} href=${it.action.href}>${it.action.label}</a>`}
+    </div>
+  </div>`;
+}
+
+/* ---------- Views ---------- */
+function Today({ data, actions }){
+  const hs = habitStats(data);
+  const route = [...hs].sort((a,b) => tm(a.time) - tm(b.time));
+  const firstOpen = route.findIndex(x => !x.today);
+  const doneCount = hs.filter(x => x.today).length;
+  const lastDoneIdx = route.reduce((m, x, i) => x.today ? i : m, -1);
+  const s = sleepStats(data);
+  const ins = insights(data);
+  const upcoming = data.events.filter(e => e.date >= TK).sort((a,b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1).slice(0, 5);
+  const [draft, setDraft] = useState("");
+  const [saved, setSaved] = useState(false);
+  const prompt = "What would make tonight feel like a good end to the day?";
+  const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+  const greet = nowM < 720 ? "Good morning" : nowM < 1080 ? "Good afternoon" : "Good evening";
+
+  return html`<div class="wrap">
+    <div class="head">
+      <div class="field" style=${{ gap: "6px" }}>
+        <span class="eyebrow">${DOW[TODAY.getDay()]} · ${TODAY.getDate()} ${MON[TODAY.getMonth()]}</span>
+        <h1>${greet}, Cary</h1>
+      </div>
+      <span class="muted">${doneCount} of ${hs.length} waypoints passed</span>
+    </div>
+
+    <section class="card" aria-label="Today's course">
+      <div class="cardhead"><span class="eyebrow">Course for today</span><span class="muted" style=${{ fontSize: "13px" }}>Tap a waypoint to mark it done</span></div>
+      <div class="route-scroll">
+        <div class="route">
+          <div class="route-track"></div>
+          <${motion.div} class="route-done" initial=${false} animate=${{ scaleX: lastDoneIdx <= 0 ? 0 : lastDoneIdx / (route.length - 1) }} transition=${spring}></${motion.div}>
+          ${route.map((w, i) => html`<${motion.button} key=${w.id} type="button" whileTap=${{ scale: .92 }}
+              class=${"wp" + (w.today ? " done" : i === firstOpen ? " next" : "")}
+              aria-pressed=${w.today} aria-label=${(w.today ? "Undo " : "Mark done: ") + w.name}
+              onClick=${() => actions.toggleHabit(w.id, TK)}>
+              <${motion.span} class="dot" layout transition=${spring}></${motion.span}>
+              <span class="t">${w.time}</span><span class="n">${w.name}</span>
+            </${motion.button}>`)}
+        </div>
+      </div>
+      <div class="route-foot">
+        <span>${doneCount === hs.length ? "All waypoints passed. Well sailed." : (hs.length - doneCount) + " still ahead"}</span>
+        ${firstOpen >= 0 && html`<span>Next: <strong>${route[firstOpen].name}</strong> at ${route[firstOpen].time}</span>`}
+      </div>
+    </section>
+
+    <div class="row">
+      <section class="card hull f3" aria-label="Navigator">
+        <div class="cardhead"><span class="eyebrow">Navigator</span><a href="#navigator" style=${{ color: "var(--hull-muted)", fontSize: "13px" }}>All insights</a></div>
+        <${AnimatePresence} mode="wait" initial=${false}>
+          ${ins[0] ? html`<${motion.div} key=${ins[0].id + ins[0].title} initial=${{ opacity: 0, y: 6 }} animate=${{ opacity: 1, y: 0 }} exit=${{ opacity: 0, y: -6 }}><${Insight} it=${ins[0]} actions=${actions} dark=${true} /></${motion.div}>`
+                   : html`<p style=${{ margin: 0 }}>Nothing needs your attention right now.</p>`}
+        </${AnimatePresence}>
+        <form style=${{ marginTop: "auto" }} onSubmit=${(e) => { e.preventDefault(); const q = e.target.elements.q.value.trim(); if (q) { actions.ask(q); location.hash = "navigator"; } }}>
+          <div class="field"><label for="q-today">Ask Navigator</label>
+            <input id="q-today" name="q" class="input" style=${{ borderRadius: "23px" }} placeholder="How is my sleep this week?" /></div>
+        </form>
+      </section>
+
+      <section class="card f2" aria-label="Last night">
+        <div class="cardhead"><span class="eyebrow">Depth chart · last night</span><span class="muted" style=${{ fontSize: "12px" }}>${s ? s.last.source : ""}</span></div>
+        ${s ? html`
+          <div style=${{ display: "flex", alignItems: "baseline", gap: "8px" }}><span class="bignum">${fmtH(s.lastMins)}</span><span class="muted">asleep</span></div>
+          ${s.last.stages ? html`<${DepthChart} night=${s.last} />` : html`<p class="muted" style=${{ margin: 0 }}>In bed ${s.last.bed}, up ${s.last.wake}. Stages appear once a watch is connected.</p>`}
+        ` : html`<p class="muted" style=${{ margin: 0 }}>No sleep logged yet.</p><a class="btn small" href="#sleep">Log last night</a>`}
+      </section>
+    </div>
+
+    <div class="row">
+      <section class="card f1" aria-label="Destinations">
+        <span class="eyebrow">Destinations</span>
+        ${goalStats(data).slice(0,3).map(g => html`<div key=${g.id} class="field" style=${{ gap: "6px" }}>
+          <div style=${{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span style=${{ fontWeight: 500 }}>${g.name}</span><span class="mono muted" style=${{ fontSize: "12px" }}>${g.progress}% · ${g.days}d</span></div>
+          <${Bar} pct=${g.progress} />
+        </div>`)}
+      </section>
+      <section class="card f1" aria-label="On the horizon">
+        <div class="cardhead"><span class="eyebrow">On the horizon</span><a href="#calendar" style=${{ color: "var(--muted)", fontSize: "13px" }}>Calendar</a></div>
+        <div class="list">
+          ${upcoming.map(e => html`<div key=${e.id} class="li"><span class="mono muted" style=${{ fontSize: "12px", width: "84px", flex: "none" }}>${e.date === TK ? "Today" : shortDate(e.date).slice(0,6)} ${e.time}</span><span>${e.title}</span></div>`)}
+        </div>
+      </section>
+      <section class="card f1" aria-label="Log book">
+        <span class="eyebrow">Log book</span>
+        <form class="field" style=${{ gap: "10px" }} onSubmit=${(e) => { e.preventDefault(); if (!draft.trim()) return; actions.addEntry(prompt, draft.trim()); setDraft(""); setSaved(true); setTimeout(() => setSaved(false), 2200); }}>
+          <label for="log-today" style=${{ fontSize: "16px", fontWeight: 500, color: "var(--ink)" }}>${prompt}</label>
+          <textarea id="log-today" class="input" value=${draft} onInput=${(e) => setDraft(e.target.value)} placeholder="A sentence or two"></textarea>
+          <div class="btns" style=${{ alignItems: "center" }}>
+            <button class="btn small" type="submit">Save entry</button>
+            <${AnimatePresence}>${saved && html`<${motion.span} initial=${{ opacity: 0, x: -6 }} animate=${{ opacity: 1, x: 0 }} exit=${{ opacity: 0 }} class="muted" style=${{ fontSize: "13px" }}>Saved to your log book</${motion.span}>`}</${AnimatePresence}>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>`;
+}
+
+function Habits({ data, actions }){
+  const hs = habitStats(data);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i - 6));
+  const [name, setName] = useState(""); const [time, setTime] = useState("19:00");
+  const [confirm, setConfirm] = useState(null);
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Last 7 days</span><h1>Habits</h1></div>
+      <span class="muted">${hs.filter(x => x.today).length} of ${hs.length} done today</span></div>
+    <section class="card" aria-label="Habit log">
+      <div class="tablebox"><table>
+        <thead><tr><th class="name" scope="col">Habit</th>${days.map(d => html`<th key=${key(d)} scope="col" style=${key(d) === TK ? { color: "var(--ink)" } : null}>${DOW[d.getDay()].slice(0,2)}<br/>${d.getDate()}</th>`)}<th scope="col">Streak</th><th scope="col"><span class="sr">Actions</span></th></tr></thead>
+        <tbody>
+          <${AnimatePresence} initial=${false}>
+          ${hs.map(hb => html`<${motion.tr} key=${hb.id} layout initial=${{ opacity: 0 }} animate=${{ opacity: 1 }} exit=${{ opacity: 0 }}>
+            <td class="name"><div style=${{ display: "flex", flexDirection: "column" }}><span style=${{ fontWeight: 500 }}>${hb.name}</span><span class="mono muted" style=${{ fontSize: "12px" }}>${hb.time}</span></div></td>
+            ${days.map(d => { const k = key(d), on = !!hb.log[k]; return html`<td key=${k}><${motion.button} type="button" whileTap=${{ scale: .85 }} class=${"cell" + (on ? " on" : "") + (k === TK ? " today" : "")} aria-pressed=${on} aria-label=${hb.name + ", " + shortDate(k)} onClick=${() => actions.toggleHabit(hb.id, k)}><${CheckMark} on=${on} /></${motion.button}></td>`; })}
+            <td class="mono">${hb.streak}d</td>
+            <td>${confirm === hb.id
+              ? html`<span class="btns" style=${{ justifyContent: "flex-end", flexWrap: "nowrap" }}><button type="button" class="btn small primary" onClick=${() => { actions.removeHabit(hb.id); setConfirm(null); }}>Remove</button><button type="button" class="btn small" onClick=${() => setConfirm(null)}>Keep</button></span>`
+              : html`<button type="button" class="btn small" aria-label=${"Remove " + hb.name} onClick=${() => setConfirm(hb.id)}>Remove</button>`}</td>
+          </${motion.tr}>`)}
+          </${AnimatePresence}>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="card" aria-label="Add a habit">
+      <span class="eyebrow">Add a habit</span>
+      <form class="form" onSubmit=${(e) => { e.preventDefault(); if (!name.trim()) return; actions.addHabit(name.trim(), time); setName(""); }}>
+        <div class="field" style=${{ flex: "3 1 240px" }}><label for="hb-name">Name</label><input id="hb-name" class="input" value=${name} onInput=${(e) => setName(e.target.value)} placeholder="Stretch 5 min" /></div>
+        <div class="field"><label for="hb-time">Time</label><input id="hb-time" type="time" class="input" value=${time} onInput=${(e) => setTime(e.target.value)} /></div>
+        <button class="btn primary" type="submit">Add habit</button>
+      </form>
+    </section>
+  </div>`;
+}
+
+function Goals({ data, actions }){
+  const gs = goalStats(data);
+  const [name, setName] = useState(""); const [due, setDue] = useState(key(addDays(TODAY, 30)));
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Destinations</span><h1>Goals</h1></div><span class="muted">Sorted by nearest deadline</span></div>
+    <div class="row">
+      ${gs.map(g => html`<${motion.section} key=${g.id} layout class="card f1" aria-label=${g.name}>
+        <div class="cardhead"><span class="eyebrow">Due ${shortDate(g.due)}</span>${g.progress >= 100 ? html`<span class="tag ok">Reached</span>` : g.perDay > 2.5 ? html`<span class="tag warn">Behind pace</span>` : html`<span class="tag">On pace</span>`}</div>
+        <h2 style=${{ fontSize: "20px" }}>${g.name}</h2>
+        <div style=${{ display: "flex", alignItems: "baseline", gap: "8px" }}><span class="bignum">${g.progress}%</span><span class="muted">${g.days} days left</span></div>
+        <${Bar} pct=${g.progress} />
+        <span class="muted" style=${{ fontSize: "13px" }}>${g.note ? g.note + " · " : ""}${g.progress < 100 ? "needs " + g.perDay.toFixed(1) + "% a day" : "done"}</span>
+        <div class="btns">
+          <button type="button" class="btn small" onClick=${() => actions.bumpGoal(g.id, -5)} aria-label=${"Lower progress on " + g.name}>−5%</button>
+          <button type="button" class="btn small primary" onClick=${() => actions.bumpGoal(g.id, 5)} aria-label=${"Raise progress on " + g.name}>+5%</button>
+        </div>
+      </${motion.section}>`)}
+    </div>
+    <section class="card" aria-label="Add a goal">
+      <span class="eyebrow">Set a new destination</span>
+      <form class="form" onSubmit=${(e) => { e.preventDefault(); if (!name.trim()) return; actions.addGoal(name.trim(), due); setName(""); }}>
+        <div class="field" style=${{ flex: "3 1 240px" }}><label for="g-name">Goal</label><input id="g-name" class="input" value=${name} onInput=${(e) => setName(e.target.value)} placeholder="Submit the conference abstract" /></div>
+        <div class="field"><label for="g-due">Deadline</label><input id="g-due" type="date" class="input" value=${due} onInput=${(e) => setDue(e.target.value)} /></div>
+        <button class="btn primary" type="submit">Add goal</button>
+      </form>
+    </section>
+  </div>`;
+}
+
+function Calendar({ data, actions }){
+  const [month, setMonth] = useState(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1));
+  const [sel, setSel] = useState(TK);
+  const [title, setTitle] = useState(""); const [time, setTime] = useState("12:00");
+  const start = addDays(month, -((month.getDay() + 6) % 7));
+  const cells = Array.from({ length: 42 }, (_, i) => addDays(start, i));
+  const evBy = {}; data.events.forEach(e => (evBy[e.date] = evBy[e.date] || []).push(e));
+  const ratio = (k) => data.habits.length ? data.habits.filter(hb => hb.log[k]).length / data.habits.length : 0;
+  const selEvents = (evBy[sel] || []).sort((a,b) => a.time < b.time ? -1 : 1);
+  const selHabits = data.habits.filter(hb => hb.log[sel]);
+  const shift = (n) => setMonth(new Date(month.getFullYear(), month.getMonth() + n, 1));
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Calendar</span><h1>${MON[month.getMonth()]} ${month.getFullYear()}</h1></div>
+      <div class="btns"><button type="button" class="btn small" onClick=${() => shift(-1)}>Previous</button><button type="button" class="btn small" onClick=${() => { setMonth(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)); setSel(TK); }}>Today</button><button type="button" class="btn small" onClick=${() => shift(1)}>Next</button></div></div>
+    <div class="row">
+      <section class="card f3" aria-label="Month">
+        <div class="tablebox"><div class="cal" style=${{ minWidth: "420px" }}>
+          ${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => html`<div key=${d} class="dow">${d}</div>`)}
+          ${cells.map(d => { const k = key(d), r = k <= TK ? ratio(k) : 0, ev = evBy[k] || [];
+            return html`<button key=${k} type="button" onClick=${() => setSel(k)} aria-pressed=${k === sel} aria-label=${shortDate(k) + ", " + ev.length + " events"}
+              class=${"day" + (d.getMonth() !== month.getMonth() ? " out" : "") + (k === sel ? " sel" : "") + (k === TK ? " isToday" : "")}>
+              <span class="dn">${d.getDate()}</span>
+              <span class="dots">${ev.slice(0,4).map(e => html`<i key=${e.id}></i>`)}</span>
+              ${k <= TK && html`<span class="ring" title="Habits done"><b style=${{ width: Math.round(r * 100) + "%" }}></b></span>`}
+            </button>`; })}
+        </div></div>
+        <div class="legend"><span><i class="sw" style=${{ background: "var(--d2)", borderRadius: "5px" }}></i>Event</span><span><i class="sw" style=${{ background: "var(--ink)", height: "4px" }}></i>Share of habits done</span></div>
+      </section>
+      <section class="card f2" aria-label="Selected day">
+        <span class="eyebrow">${shortDate(sel)}</span>
+        <${AnimatePresence} mode="wait" initial=${false}>
+          <${motion.div} key=${sel} initial=${{ opacity: 0, y: 6 }} animate=${{ opacity: 1, y: 0 }} exit=${{ opacity: 0 }} class="field" style=${{ gap: "12px" }}>
+            <div class="list">${selEvents.length ? selEvents.map(e => html`<div key=${e.id} class="li"><span class="mono muted" style=${{ fontSize: "12px", width: "48px" }}>${e.time}</span><span style=${{ flex: 1 }}>${e.title}</span><button type="button" class="btn small" aria-label=${"Delete " + e.title} onClick=${() => actions.removeEvent(e.id)}>Delete</button></div>`) : html`<p class="muted" style=${{ margin: 0 }}>No events.</p>`}</div>
+            ${sel <= TK && html`<p class="muted" style=${{ margin: 0, fontSize: "13px" }}>Habits done: ${selHabits.length ? selHabits.map(x => x.name).join(", ") : "none"}</p>`}
+          </${motion.div}>
+        </${AnimatePresence}>
+        <form class="form" style=${{ borderTop: "1px solid var(--line-soft)", paddingTop: "14px" }} onSubmit=${(e) => { e.preventDefault(); if (!title.trim()) return; actions.addEvent(sel, time, title.trim()); setTitle(""); }}>
+          <div class="field" style=${{ flex: "2 1 160px" }}><label for="ev-title">New event</label><input id="ev-title" class="input" value=${title} onInput=${(e) => setTitle(e.target.value)} placeholder="Study group" /></div>
+          <div class="field" style=${{ flex: "1 1 110px" }}><label for="ev-time">Time</label><input id="ev-time" type="time" class="input" value=${time} onInput=${(e) => setTime(e.target.value)} /></div>
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+      </section>
+    </div>
+  </div>`;
+}
+
+function Sleep({ data, actions }){
+  const s = sleepStats(data);
+  const [bed, setBed] = useState("23:30"); const [wake, setWake] = useState("07:15"); const [q, setQ] = useState("3");
+  const [date, setDate] = useState(TK);
+  const st = data.settings;
+  const winStart = fmtT(tm(st.wakeTarget) - st.wakeWindow);
+  const MAXH = 600;
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Sleep</span><h1>Soundings</h1></div><span class="muted">Target ${fmtH(st.sleepTarget)} a night</span></div>
+    ${s && html`<div class="row">
+      <section class="card f2" aria-label="Last night">
+        <div class="cardhead"><span class="eyebrow">Last night · ${shortDate(s.last.date)}</span><span class="muted" style=${{ fontSize: "12px" }}>${s.last.source}</span></div>
+        <div style=${{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}><span class="bignum">${fmtH(s.lastMins)}</span><span class="muted">${s.last.bed} to ${s.last.wake} · quality ${s.last.quality}/5</span></div>
+        ${s.last.stages ? html`<${DepthChart} night=${s.last} height=${120} />` : html`<p class="note" style=${{ margin: 0 }}>Manual logs record time in bed only. Sleep stages will appear here once a watch is connected.</p>`}
+      </section>
+      <section class="card f2" aria-label="This week">
+        <span class="eyebrow">Last 7 nights</span>
+        <div style=${{ display: "flex", gap: "28px", flexWrap: "wrap" }}>
+          <div class="field" style=${{ gap: "2px" }}><span class="muted" style=${{ fontSize: "13px" }}>Average</span><span class="bignum" style=${{ fontSize: "26px" }}>${fmtH(s.avg)}</span></div>
+          <div class="field" style=${{ gap: "2px" }}><span class="muted" style=${{ fontSize: "13px" }}>Avg bedtime</span><span class="bignum" style=${{ fontSize: "26px" }}>${fmtT(Math.round(s.bAvg))}</span></div>
+          <div class="field" style=${{ gap: "2px" }}><span class="muted" style=${{ fontSize: "13px" }}>Bedtime spread</span><span class="bignum" style=${{ fontSize: "26px" }}>±${Math.round(s.sd)}m</span></div>
+        </div>
+        <div class="wchart" role="img" aria-label=${"Hours slept each night: " + s.mins.map(m => fmtH(m)).join(", ")}>
+          <div class="target" style=${{ bottom: (st.sleepTarget / MAXH * 100) + "%" }}><span>${fmtH(st.sleepTarget)}</span></div>
+          ${s.mins.map((m, i) => html`<${motion.div} key=${s.nights[i].id} class=${"b" + (i === s.mins.length - 1 ? " last" : "")} initial=${{ scaleY: 0 }} animate=${{ scaleY: 1 }} transition=${{ delay: i * .05, duration: .5, ease: [.2,.7,.2,1] }} style=${{ height: (m / MAXH * 100) + "%" }} title=${fmtH(m)}></${motion.div}>`)}
+        </div>
+        <div class="wlabels">${s.nights.map(n => html`<span key=${n.id}>${DOW[fromKey(n.date).getDay()].slice(0,2)}</span>`)}</div>
+      </section>
+    </div>`}
+
+    <div class="row">
+      <section class="card hull f2" aria-label="Sleep feedback">
+        <span class="eyebrow">Navigator on your sleep</span>
+        ${insights(data).filter(x => x.id === "sleep" || x.id === "bed").map(it => html`<${Insight} key=${it.id} it=${{ ...it, action: null }} actions=${actions} dark=${true} />`)}
+        ${s && s.avg >= s.target && html`<p style=${{ margin: 0 }}>You're meeting your target this week. Keep the bedtime steady.</p>`}
+      </section>
+      <section class="card f2" aria-label="Log a night">
+        <span class="eyebrow">Log a night</span>
+        <form class="form" onSubmit=${(e) => { e.preventDefault(); actions.logSleep({ date, bed, wake, quality: Number(q) }); }}>
+          <div class="field"><label for="sl-date">Woke up on</label><input id="sl-date" type="date" class="input" value=${date} max=${TK} onInput=${(e) => setDate(e.target.value)} /></div>
+          <div class="field"><label for="sl-bed">Went to bed</label><input id="sl-bed" type="time" class="input" value=${bed} onInput=${(e) => setBed(e.target.value)} /></div>
+          <div class="field"><label for="sl-wake">Woke up</label><input id="sl-wake" type="time" class="input" value=${wake} onInput=${(e) => setWake(e.target.value)} /></div>
+          <div class="field"><label for="sl-q">How rested (1–5)</label><select id="sl-q" class="input" value=${q} onChange=${(e) => setQ(e.target.value)}>${[1,2,3,4,5].map(n => html`<option key=${n} value=${n}>${n}</option>`)}</select></div>
+          <button class="btn primary" type="submit">Save night</button>
+        </form>
+        <p class="muted" style=${{ margin: 0, fontSize: "13px" }}>Logging the same date again replaces that night.</p>
+      </section>
+    </div>
+
+    <section class="card" aria-label="Smart wake window">
+      <div class="cardhead"><span class="eyebrow">Smart wake window</span><span class="tag">Needs the watch app</span></div>
+      <form class="form" onSubmit=${(e) => e.preventDefault()}>
+        <div class="field"><label for="wk-t">Latest wake time</label><input id="wk-t" type="time" class="input" value=${st.wakeTarget} onInput=${(e) => actions.setSettings({ wakeTarget: e.target.value })} /></div>
+        <div class="field"><label for="wk-w">Window</label><select id="wk-w" class="input" value=${st.wakeWindow} onChange=${(e) => actions.setSettings({ wakeWindow: Number(e.target.value) })}>${[15,20,30,45].map(n => html`<option key=${n} value=${n}>${n} minutes</option>`)}</select></div>
+        <div class="field"><label for="wk-g">Sleep target</label><select id="wk-g" class="input" value=${st.sleepTarget} onChange=${(e) => actions.setSettings({ sleepTarget: Number(e.target.value) })}>${[420,450,480,510].map(n => html`<option key=${n} value=${n}>${fmtH(n)}</option>`)}</select></div>
+      </form>
+      <p style=${{ margin: 0, maxWidth: "70ch" }}>Anchor will wake you between <strong>${winStart}</strong> and <strong>${st.wakeTarget}</strong>, at the first moment it detects light sleep. For now these settings set your bedtime suggestion; live stage detection arrives with the watch app.</p>
+    </section>
+  </div>`;
+}
+
+function Logbook({ data, actions }){
+  const prompts = ["What pulled you off course today?","What went well that you want to repeat?","What are you putting off, and why?","What would make tomorrow easier?"];
+  const [p, setP] = useState(0); const [text, setText] = useState("");
+  const entries = [...data.logbook].sort((a,b) => a.date < b.date ? 1 : -1);
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Reflections</span><h1>Log book</h1></div><span class="muted">${entries.length} entries</span></div>
+    <section class="card" aria-label="New entry">
+      <div class="cardhead"><span class="eyebrow">${shortDate(TK)}</span><button type="button" class="btn small" onClick=${() => setP((p + 1) % prompts.length)}>Different prompt</button></div>
+      <form class="field" style=${{ gap: "12px" }} onSubmit=${(e) => { e.preventDefault(); if (!text.trim()) return; actions.addEntry(prompts[p], text.trim()); setText(""); }}>
+        <${AnimatePresence} mode="wait" initial=${false}><${motion.label} key=${p} for="lb-text" initial=${{ opacity: 0, y: 4 }} animate=${{ opacity: 1, y: 0 }} exit=${{ opacity: 0 }} style=${{ fontSize: "20px", fontWeight: 500, color: "var(--ink)" }}>${prompts[p]}</${motion.label}></${AnimatePresence}>
+        <textarea id="lb-text" class="input" style=${{ minHeight: "140px" }} value=${text} onInput=${(e) => setText(e.target.value)} placeholder="Write freely"></textarea>
+        <div><button class="btn primary" type="submit">Save entry</button></div>
+      </form>
+    </section>
+    <section class="card" aria-label="Past entries">
+      <span class="eyebrow">Past entries</span>
+      <div><${AnimatePresence} initial=${false}>
+        ${entries.map(en => html`<${motion.article} key=${en.id} layout initial=${{ opacity: 0, height: 0 }} animate=${{ opacity: 1, height: "auto" }} exit=${{ opacity: 0, height: 0 }} class="entry">
+          <div class="cardhead"><span class="mono muted" style=${{ fontSize: "12px" }}>${shortDate(en.date)}</span><button type="button" class="btn small" aria-label="Delete entry" onClick=${() => actions.removeEntry(en.id)}>Delete</button></div>
+          <strong>${en.prompt}</strong><p style=${{ margin: 0, maxWidth: "68ch" }}>${en.text}</p>
+        </${motion.article}>`)}
+      </${AnimatePresence}></div>
+    </section>
+  </div>`;
+}
+
+function Navigator({ data, actions, chat }){
+  const ins = insights(data);
+  const [q, setQ] = useState("");
+  const endRef = useRef(null);
+  useEffect(() => { if (endRef.current) endRef.current.scrollTop = endRef.current.scrollHeight; }, [chat.length]);
+  const send = (text) => { if (!text.trim()) return; actions.ask(text.trim()); setQ(""); };
+  return html`<div class="wrap">
+    <div class="head"><div class="field" style=${{ gap: "6px" }}><span class="eyebrow">Assistant</span><h1>Navigator</h1></div><span class="tag">Offline mode</span></div>
+    <div class="row">
+      <section class="card f2" aria-label="Insights">
+        <span class="eyebrow">What I'm watching</span>
+        ${ins.map((it, i) => html`<${motion.div} key=${it.id} initial=${{ opacity: 0, y: 8 }} animate=${{ opacity: 1, y: 0 }} transition=${{ delay: i * .06 }} style=${{ borderTop: i ? "1px solid var(--line-soft)" : "none", paddingTop: i ? "14px" : 0 }}><${Insight} it=${it} actions=${actions} /></${motion.div}>`)}
+      </section>
+      <section class="card hull f2" aria-label="Chat">
+        <span class="eyebrow">Ask Navigator</span>
+        <div class="chatlog" ref=${endRef} aria-live="polite">
+          ${chat.length === 0 && html`<p style=${{ margin: 0, color: "var(--hull-muted)" }}>Ask about your sleep, habits, goals, or how your week is going.</p>`}
+          ${chat.map((m, i) => html`<${motion.div} key=${i} initial=${{ opacity: 0, y: 8, scale: .98 }} animate=${{ opacity: 1, y: 0, scale: 1 }} class=${"msg " + (m.me ? "me" : "nav")} style=${m.me ? { background: "var(--hull-fg)", color: "var(--hull)" } : { background: "var(--hull-2)", borderColor: "var(--hull-line)", color: "var(--hull-fg)" }}>${m.text}</${motion.div}>`)}
+        </div>
+        <div class="btns">${["How is my sleep?","How am I doing this week?","Which habit is slipping?"].map(s => html`<button key=${s} type="button" class="btn small ghost-dark" onClick=${() => send(s)}>${s}</button>`)}</div>
+        <form style=${{ display: "flex", gap: "8px" }} onSubmit=${(e) => { e.preventDefault(); send(q); }}>
+          <label for="nav-q" class="sr">Message Navigator</label>
+          <input id="nav-q" class="input" style=${{ borderRadius: "23px", flex: 1 }} value=${q} onInput=${(e) => setQ(e.target.value)} placeholder="Type a question" />
+          <button class="btn primary" type="submit">Send</button>
+        </form>
+        <p class="note" style=${{ margin: 0 }}>Answers here are worked out from your own data on this page. Hooking Navigator up to Claude through your backend turns this into full conversation.</p>
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- App ---------- */
+function App(){
+  const [data, setData] = useState(load);
+  const [chat, setChat] = useState([]);
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("anchor-theme") || "system"; } catch(e){ return "system"; } });
+  const route = useRoute();
+  useEffect(() => save(data), [data]);
+  useEffect(() => { const r = document.documentElement; if (theme === "system") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", theme); try { localStorage.setItem("anchor-theme", theme); } catch(e){} }, [theme]);
+
+  const up = (fn) => setData(d => fn(structuredClone(d)));
+  const actions = {
+    toggleHabit: (id, k) => up(d => { const hb = d.habits.find(x => x.id === id); if (hb) { if (hb.log[k]) delete hb.log[k]; else hb.log[k] = true; } return d; }),
+    setHabitTime: (id, time) => up(d => { const hb = d.habits.find(x => x.id === id); if (hb) hb.time = time; return d; }),
+    addHabit: (name, time) => up(d => { d.habits.push({ id: uid(), name, time, log: {} }); return d; }),
+    removeHabit: (id) => up(d => { d.habits = d.habits.filter(x => x.id !== id); return d; }),
+    bumpGoal: (id, n) => up(d => { const g = d.goals.find(x => x.id === id); if (g) g.progress = Math.max(0, Math.min(100, g.progress + n)); return d; }),
+    addGoal: (name, due) => up(d => { d.goals.push({ id: uid(), name, due, progress: 0, note: "" }); return d; }),
+    addEvent: (date, time, title) => up(d => { d.events.push({ id: uid(), date, time, title }); return d; }),
+    removeEvent: (id) => up(d => { d.events = d.events.filter(x => x.id !== id); return d; }),
+    logSleep: (n) => up(d => { d.sleep = d.sleep.filter(x => x.date !== n.date); d.sleep.push({ id: uid(), source: "Manual", ...n }); return d; }),
+    setSettings: (s) => up(d => { Object.assign(d.settings, s); return d; }),
+    addEntry: (prompt, text) => up(d => { d.logbook.push({ id: uid(), date: TK, prompt, text }); return d; }),
+    removeEntry: (id) => up(d => { d.logbook = d.logbook.filter(x => x.id !== id); return d; }),
+    ask: (q) => setChat(c => [...c, { me: true, text: q }, { me: false, text: answer(q, dataRef.current) }])
+  };
+  const dataRef = useRef(data); dataRef.current = data;
+  const views = { today: Today, habits: Habits, goals: Goals, calendar: Calendar, sleep: Sleep, logbook: Logbook, navigator: Navigator };
+  const View = views[route];
+
+  return html`<${MotionConfig} reducedMotion="user">
+    <div class="shell">
+      <aside class="side">
+        <a class="brand" href="#today">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="16" cy="16" r="13"></circle><circle cx="16" cy="16" r="8" stroke-dasharray="2 3"></circle><path d="M16 3v6M16 23v6M3 16h6M23 16h6"></path></svg>
+          Anchor
+        </a>
+        <${LayoutGroup}>
+          <nav class="nav" aria-label="Main">
+            ${ROUTES.map(([id, label]) => html`<a key=${id} href=${"#" + id} aria-current=${route === id ? "page" : undefined}>
+              ${route === id && html`<${motion.span} class="pill" layoutId="navpill" transition=${spring}></${motion.span}>`}
+              ${ICONS[id]}<span>${label}</span></a>`)}
+          </nav>
+        </${LayoutGroup}>
+        <div class="side-foot">
+          <div class="themebtn" role="group" aria-label="Theme">
+            ${[["light","Day"],["system","Auto"],["dark","Night"]].map(([v, l]) => html`<button key=${v} type="button" aria-pressed=${theme === v} onClick=${() => setTheme(v)}>${l}</button>`)}
+          </div>
+          <span>Example data. Your changes are saved in this browser.</span>
+          <button type="button" class="linkbtn" onClick=${() => { setData(seed()); setChat([]); }}>Reset example data</button>
+        </div>
+      </aside>
+      <main class="main">
+        <${AnimatePresence} mode="wait" initial=${false}>
+          <${motion.div} key=${route} initial=${{ opacity: 0, y: 10 }} animate=${{ opacity: 1, y: 0 }} exit=${{ opacity: 0, y: -8 }} transition=${{ duration: .22, ease: [.2,.7,.2,1] }}>
+            <${View} data=${data} actions=${actions} chat=${chat} />
+          </${motion.div}>
+        </${AnimatePresence}>
+      </main>
+    </div>
+  </${MotionConfig}>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();
+</script>

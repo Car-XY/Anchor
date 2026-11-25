@@ -1,4 +1,4 @@
-# Railway build: Python backend + Node to build the frontend once.
+# railway needs node as well to build the frontend
 providers = ["python", "node"]
 
 [variables]

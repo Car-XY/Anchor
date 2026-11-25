@@ -1,9 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
-// The frontend lives in ./frontend and builds to ./frontend/dist, which Flask
-// serves in production and Electron loads through Flask.
-// In development, `npm run dev` serves it on :5173 and proxies /api to Flask.
+// frontend/ builds to frontend/dist, which flask serves.
+// npm run dev runs on :5173 and proxies /api through to flask on :5000
 export default defineConfig({
   root: 'frontend',
   plugins: [tailwindcss()],

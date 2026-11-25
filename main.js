@@ -1,5 +1,5 @@
-// Electron shell: starts the Flask backend, waits until it answers, then
-// opens the window. Flask serves the built frontend from frontend/dist.
+// electron: start flask, wait until it responds, then load it in a window
+// (the old version just waited 800ms and hoped flask was up)
 const { app, BrowserWindow, Menu, shell } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -10,7 +10,7 @@ const PORT = Number(process.env.ANCHOR_PORT || 5000);
 let backend;
 
 function pythonPath() {
-  // Prefer the project's virtual environment when running from source.
+  // use the venv python if there is one
   const candidates = process.platform === 'win32'
     ? [path.join(__dirname, '.venv', 'Scripts', 'python.exe'), path.join(__dirname, 'venv', 'Scripts', 'python.exe')]
     : [path.join(__dirname, '.venv', 'bin', 'python'), path.join(__dirname, 'venv', 'bin', 'python')];
@@ -20,7 +20,7 @@ function pythonPath() {
 function startBackend() {
   const env = { ...process.env, ANCHOR_PORT: String(PORT) };
   if (app.isPackaged) {
-    // Packaged builds ship a frozen backend (backend/dist/app.exe) and the built frontend.
+    // packaged app: frozen backend exe + built frontend in resources/
     env.FRONTEND_DIST = path.join(process.resourcesPath, 'frontend');
     backend = spawn(path.join(process.resourcesPath, 'backend', 'app.exe'), [], { env });
   } else {
@@ -58,7 +58,7 @@ async function createWindow() {
     webPreferences: { contextIsolation: true, sandbox: true },
   });
   win.once('ready-to-show', () => win.show());
-  // Open external links (GitHub, LinkedIn…) in the browser, not inside Anchor.
+  // open external links in the normal browser instead of inside the app
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };

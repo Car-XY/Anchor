@@ -11,13 +11,13 @@ from . import body, bp, text
 @bp.patch("/account")
 @login_required
 def update_account():
-    """Timezone and companion preferences."""
+    """update timezone and/or companion settings"""
     user = current_user()
     data = body()
     if "timezone" in data:
         tz = valid_timezone(data.get("timezone"))
         if not tz:
-            raise ApiError("That timezone isn’t recognised.", field="timezone")
+            raise ApiError("That timezone isn't recognised.", field="timezone")
         user.timezone = tz
     companion = data.get("companion") or {}
     if "animal" in companion:

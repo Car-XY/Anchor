@@ -53,7 +53,7 @@ def companion_status():
 @bp.get("/companion/nudge")
 @login_required
 def nudge():
-    """A short tip for the floating companion, cached until the data changes."""
+    """tip for the floating companion. cached so the model only gets called when the data changes"""
     user = current_user()
     ov = build_overview(user)
     hour = user_now(user).hour
@@ -91,7 +91,7 @@ def send_message():
     content = text(body(), "content", "message", max_len=4000)
     if not _configured():
         raise ApiError(
-            "The companion isn’t connected yet. Add OPENROUTER_API_KEY to your .env file and restart Anchor.", 503
+            "The companion isn't connected yet. Add OPENROUTER_API_KEY to your .env file and restart Anchor.", 503
         )
 
     hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
@@ -101,7 +101,7 @@ def send_message():
         )
     )
     if recent >= current_app.config["COMPANION_MESSAGES_PER_HOUR"]:
-        raise ApiError("That’s a lot of messages for one hour. Take a breather and come back soon.", 429)
+        raise ApiError("That's a lot of messages for one hour. Take a breather and come back soon.", 429)
 
     history = db.session.scalars(
         select(ChatMessage).where(ChatMessage.user_id == user.id).order_by(ChatMessage.id.desc()).limit(HISTORY)
@@ -112,7 +112,7 @@ def send_message():
     try:
         reply = _ask(user, messages)
     except CompanionUnavailable:
-        raise ApiError("The companion isn’t connected yet.", 503)
+        raise ApiError("The companion isn't connected yet.", 503)
     except CompanionError as exc:
         raise ApiError(str(exc), 502)
 

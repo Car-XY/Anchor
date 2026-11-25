@@ -12,7 +12,7 @@ from . import body, bp, colour, overview_response, parse_date, text
 def _own_habit(habit_id: int) -> Habit:
     habit = db.session.get(Habit, habit_id)
     if habit is None or habit.user_id != current_user().id:
-        raise ApiError("That habit doesn’t exist.", 404)
+        raise ApiError("That habit doesn't exist.", 404)
     return habit
 
 
@@ -50,7 +50,7 @@ def update_habit(habit_id: int):
     habit = _own_habit(habit_id)
     for key, value in _fields(body()).items():
         setattr(habit, key, value)
-    # Logs outside a narrowed date range no longer count; drop them.
+    # if the dates got narrower, delete logs that are now outside them
     outside = HabitLog.completed_on < habit.start_date
     if habit.end_date:
         outside = outside | (HabitLog.completed_on > habit.end_date)
@@ -70,13 +70,13 @@ def delete_habit(habit_id: int):
 @bp.put("/habits/<int:habit_id>/logs/<day>")
 @login_required
 def set_log(habit_id: int, day: str):
-    """Mark a day held ({"done": true}) or clear it ({"done": false})."""
+    """{"done": true} ticks the day, {"done": false} unticks it"""
     habit = _own_habit(habit_id)
     on = parse_date({"day": day}, "day", "day")
     if on > user_today(current_user()):
-        raise ApiError("You can’t log a day that hasn’t happened yet.")
+        raise ApiError("You can't log a day that hasn't happened yet.")
     if on < habit.start_date or (habit.end_date and on > habit.end_date):
-        raise ApiError("That day is outside this habit’s dates.")
+        raise ApiError("That day is outside this habit's dates.")
     done = bool(body().get("done"))
     existing = db.session.scalar(
         select(HabitLog).where(HabitLog.habit_id == habit.id, HabitLog.completed_on == on)

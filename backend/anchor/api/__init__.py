@@ -39,7 +39,7 @@ def parse_date(data: dict, key: str, label: str, *, required: bool = True) -> da
     try:
         return date.fromisoformat(str(raw))
     except ValueError:
-        raise ApiError(f"The {label} isn’t a valid date.", field=key)
+        raise ApiError(f"The {label} isn't a valid date.", field=key)
 
 
 def colour(data: dict, key: str = "color") -> str:
@@ -50,9 +50,9 @@ def colour(data: dict, key: str = "color") -> str:
 
 
 def overview_response(status: int = 200):
-    """Writes return the fresh overview so the client never recomputes streaks."""
+    """writes send back the updated overview so the frontend doesn't recalc anything"""
     return jsonify(build_overview(current_user())), status
 
 
-# Register route modules on the blueprint.
+# importing these registers their routes on bp
 from . import account, companion, habits, reflections  # noqa: E402,F401

@@ -9,7 +9,7 @@ from . import body, bp, overview_response, parse_date, text
 def _own(reflection_id: int) -> Reflection:
     ref = db.session.get(Reflection, reflection_id)
     if ref is None or ref.user_id != current_user().id:
-        raise ApiError("That reflection doesn’t exist.", 404)
+        raise ApiError("That reflection doesn't exist.", 404)
     return ref
 
 

@@ -1,0 +1,50 @@
+{
+  "name": "anchor",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Anchor: a habit and wellbeing tracker with a sea that follows your progress.",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "npm run build && electron .",
+    "electron": "electron .",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.5",
+    "@fontsource-variable/hanken-grotesk": "^5.2.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "tailwindcss": "^4.3.3",
+    "vite": "^7.1.0"
+  },
+  "build": {
+    "appId": "com.carxy.anchor",
+    "productName": "Anchor",
+    "win": {
+      "target": "appx"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/dist",
+        "to": "backend"
+      },
+      {
+        "from": "frontend/dist",
+        "to": "frontend"
+      }
+    ]
+  },
+  "author": "Cary Li",
+  "license": "ISC"
+}

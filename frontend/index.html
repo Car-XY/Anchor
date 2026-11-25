@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-sea="calm">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Anchor</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Apply the saved theme before first paint to avoid a flash.
+      try {
+        const t = JSON.parse(localStorage.getItem('anchor.theme') || '"system"');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <canvas class="ocean" id="ocean" aria-hidden="true"></canvas>
+    <div class="sea-fallback" id="seaFallback" aria-hidden="true" hidden>
+      <div class="wave"><svg viewBox="0 0 2400 160" preserveAspectRatio="none"><path d="M0 70 Q150 30 300 70 T600 70 T900 70 T1200 70 T1500 70 T1800 70 T2100 70 T2400 70 V160 H0Z" /></svg></div>
+      <div class="wave"><svg viewBox="0 0 2400 160" preserveAspectRatio="none"><path d="M0 60 Q200 15 400 60 T800 60 T1200 60 T1600 60 T2000 60 T2400 60 V160 H0Z" /></svg></div>
+    </div>
+
+    <!-- Log in / register -->
+    <section id="auth" class="relative z-10 grid min-h-dvh place-items-center p-6" hidden></section>
+
+    <!-- App shell -->
+    <div id="app" class="relative z-10 grid min-h-dvh grid-cols-1 min-[821px]:grid-cols-[216px_minmax(0,1fr)]" hidden>
+      <nav class="rail fixed inset-x-0 bottom-0 z-30 flex border-t border-line px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[821px]:sticky min-[821px]:top-0 min-[821px]:h-dvh min-[821px]:flex-col min-[821px]:border-t-0 min-[821px]:border-r min-[821px]:px-3.5 min-[821px]:py-5.5" aria-label="Main">
+        <div class="hidden items-center gap-2.5 px-2.5 pb-6.5 font-serif text-[23px] min-[821px]:flex">
+          <svg class="text-brass" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2" /><path d="M12 6.5V21M8 10h8M4.5 14.5c.5 3.8 3.6 6.5 7.5 6.5s7-2.7 7.5-6.5" /></g></svg>
+          Anchor
+        </div>
+        <div class="nav flex flex-1 justify-around gap-0.5 min-[821px]:grid min-[821px]:flex-none" id="nav"></div>
+      </nav>
+
+      <main class="min-w-0 px-4 pt-7 pb-44 sm:px-[clamp(16px,3.2vw,44px)] min-[821px]:pb-36">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 id="viewTitle" class="text-[clamp(30px,4vw,44px)] leading-[1.05] font-[350] tracking-[-0.012em]"></h1>
+            <p id="viewSub" class="mt-1.5 text-muted"></p>
+          </div>
+          <div class="flex items-center gap-1.5" id="tools"></div>
+        </header>
+        <div id="view"></div>
+      </main>
+    </div>
+
+    <dialog class="dlg" id="confirmDlg" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle" class="mb-4 text-2xl"></h2>
+      <p id="confirmBody" class="-mt-1.5 mb-5 text-muted"></p>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn" id="confirmNo">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmYes"></button>
+      </div>
+    </dialog>
+
+    <dialog class="dlg" id="habitDlg" aria-labelledby="habitDlgTitle"></dialog>
+
+    <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  </body>
+</html>

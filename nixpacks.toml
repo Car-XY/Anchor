@@ -1,0 +1,11 @@
+# Railway build: Python backend + Node to build the frontend once.
+providers = ["python", "node"]
+
+[variables]
+ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
+
+[phases.build]
+cmds = ["npm ci", "npm run build"]
+
+[start]
+cmd = "gunicorn --chdir backend --bind 0.0.0.0:${PORT:-8000} wsgi:app"

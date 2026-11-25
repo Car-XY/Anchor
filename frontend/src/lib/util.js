@@ -5,9 +5,10 @@ const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ESC[c]);
 
 export const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-export const pct = (rate) => (rate == null ? '–' : `${Math.round(rate * 100)}%`);
+export const pct = (rate) => (rate == null ? '-' : `${Math.round(rate * 100)}%`);
 
-// Dates are ISO strings (YYYY-MM-DD) everywhere; these helpers avoid timezone drift.
+// dates are YYYY-MM-DD strings everywhere. new Date('2026-01-01') parses as UTC
+// and can land on the wrong day, so these build local dates instead
 const pad = (n) => String(n).padStart(2, '0');
 export const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 export const parse = (s) => {
@@ -55,7 +56,8 @@ export const store = {
 
 export const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** Minimal, safe Markdown for companion replies: paragraphs, lists, bold, italics. */
+// small markdown renderer for companion replies (paragraphs, lists, bold, italic)
+// escapes everything first so model output can't inject html
 export function renderMarkdown(src) {
   const inline = (t) =>
     esc(t)

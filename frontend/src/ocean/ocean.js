@@ -1,6 +1,5 @@
-// Full-screen animated ocean, drawn by one fragment shader (WebGL 1, no
-// libraries). Wave height, chop, speed, foam and cloud cover follow the
-// sea state; the palette follows the time of day and light/dark theme.
+// ocean background - one fragment shader, plain webgl 1 (three.js was overkill for this)
+// waves/foam/clouds follow the sea state, colours follow time of day + theme
 
 const VERT = `
 attribute vec2 aPos;
@@ -42,8 +41,8 @@ float fbm(vec2 p) {
   return v;
 }
 
-// Sum of sharpened sine waves (exp(sin x - 1) gives pointed crests), with a
-// little "drag" so crests cluster the way real chop does. Returns 0..1.
+// sum of sine waves. exp(sin(x) - 1) makes the crests pointy instead of round,
+// and nudging p each loop bunches the crests together like real chop. returns 0..1
 float waves(vec2 p, int detail) {
   float t = uTime * uSpeed;
   float freq = uFreq, w = 1.0, h = 0.0, sum = 0.0, angle = 0.0, spd = 1.0;
@@ -90,7 +89,7 @@ void main() {
   if (dir.y > -0.0015) {
     col = sky(dir, 1.0);
   } else {
-    // March the ray onto the height field (a few fixed-point steps is enough).
+    // find where the ray hits the water, 4 steps is enough
     float t = CAM_H / -dir.y;
     for (int i = 0; i < 4; i++) {
       vec3 pos = vec3(0.0, CAM_H, 0.0) + dir * t;
@@ -108,11 +107,11 @@ void main() {
     float fres = 0.04 + 0.96 * pow(1.0 - max(dot(n, -dir), 0.0), 5.0);
     vec3 r = reflect(dir, n);
     r.y = abs(r.y);
-    vec3 refl = sky(r, 0.15);  // the sun itself is added as a sharp glint below
+    vec3 refl = sky(r, 0.15);  // sun gets added separately below as a sharp glint
     float crest = clamp(hc / uAmp + 1.0, 0.0, 1.0);
-    float contrast = 1.0 + uFoam * 0.5;  // deeper troughs in rough water
+    float contrast = 1.0 + uFoam * 0.5;  // darker troughs when it's rough
     vec3 body = mix(uDeep / contrast, uShallow * (0.9 + 0.2 * uFoam), pow(crest, 2.2 / contrast) * 0.85 + 0.1);
-    // light leaking through the slopes that face us keeps waves readable at night
+    // fake light through the wave faces, otherwise you can't see anything at night
     body += uShallow * pow(max(dot(n, -dir), 0.0), 3.0) * 0.12 * (1.0 - fres);
     col = mix(body, refl, fres);
     float s = max(dot(r, uSunDir), 0.0);
@@ -127,7 +126,7 @@ void main() {
     col = mix(col, uSkyHor, fog);
   }
 
-  // Slanting rain in a storm
+  // rain (storm only)
   float rain = clamp(uFoam * 2.0 - 1.0, 0.0, 1.0);
   if (rain > 0.01) {
     vec2 rq = frag / uRes.y;
@@ -139,7 +138,7 @@ void main() {
     col += mix(uSkyHor, vec3(1.0), 0.5) * line * step(0.8, h) * 0.12 * rain;
   }
 
-  // Soft vignette and dithering against banding
+  // vignette + a bit of noise so the gradients don't band
   vec2 q = frag / uRes;
   col *= 0.88 + 0.12 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.2);
   col += (hash(frag + fract(uTime)) - 0.5) / 255.0;
@@ -147,8 +146,7 @@ void main() {
 }
 `;
 
-// Sea-state parameters. The shader eases between them, so a state change
-// rolls in over a couple of seconds instead of snapping.
+// values per sea state. frame() eases towards these so changes roll in slowly
 export const SEA_PARAMS = {
   calm: { amp: 0.2, freq: 0.42, speed: 0.6, decay: 0.64, foam: 0.0, cloud: 0.14, sunVis: 1.0, grey: 0.0 },
   open: { amp: 0.6, freq: 0.5, speed: 1.0, decay: 0.75, foam: 0.25, cloud: 0.45, sunVis: 0.7, grey: 0.25 },
@@ -218,7 +216,7 @@ export function createOcean(canvas, { reducedMotion = false } = {}) {
   }
 
   function resize() {
-    // Render at reduced resolution: the water is soft, and this keeps the GPU cool.
+    // render at about half res. it's blurry water anyway and it saves a lot of gpu
     const scale = Math.min(window.devicePixelRatio || 1, 1) * (innerWidth > 1400 ? 0.5 : 0.6);
     const w = Math.max(1, Math.round(innerWidth * scale));
     const h = Math.max(1, Math.round(innerHeight * scale));
@@ -270,7 +268,7 @@ export function createOcean(canvas, { reducedMotion = false } = {}) {
   function frame(now) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min((now - (last || now)) / 1000, 0.1);
-    // ~30 fps is plenty for a background and halves the GPU work.
+    // ~30fps, it's just a background
     if (now - last < 32 && !needsFrame) return;
     last = now;
     const k = 1 - Math.exp(-dt * 0.9);

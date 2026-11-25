@@ -1,4 +1,4 @@
-"""Deterministic demo data, so a fresh install has something to look at."""
+"""fake data for seed-demo (seeded so it comes out the same every time)"""
 from __future__ import annotations
 
 import random
@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 PALETTE = ["#F08A6C", "#F2C46D", "#5EC8E5", "#9C8CF0", "#6FD3A8", "#F28DB2", "#7FB3FF", "#D6E36B"]
 
-# title, notes, start offset, end offset, colour index, hold rate, done today, guaranteed recent run
+# title, notes, start offset, end offset, colour, hold rate, done today, recent streak length
 _HABITS = [
     ("Morning run", "5 km, easy pace", -46, None, 0, 0.7, True, 0),
     ("Read 20 pages", "Currently: The Old Man and the Sea", -60, None, 1, 0.9, True, 23),
@@ -22,14 +22,14 @@ _REFLECTIONS = [
      "Reading streak is the thing keeping me going."),
     (-9, "Sleep is the weak link",
      "Every missed habit this week traces back to going to bed late. Trying screens-off at 11 instead of just "
-     "“lights out”."),
+     "'lights out'."),
     (-16, "Deep work finally sticking", "Phone in the other room works. Two full sessions on three days."),
-    (-27, "First week aboard", "Set up Anchor and started with five habits. Probably too many at once, but let’s see."),
+    (-27, "First week aboard", "Set up Anchor and started with five habits. Probably too many at once, but let's see."),
 ]
 
 
 def demo_habits(today: date, *, rate_scale: float = 1.0, seed: int = 11) -> list[dict]:
-    """rate_scale < 1 makes a rougher recent week (useful to preview storms)."""
+    """rate_scale < 1 makes the last week worse (handy for testing the storm)"""
     rng = random.Random(seed)
     out = []
     for title, notes, start, end, colour, rate, done_today, run in _HABITS:

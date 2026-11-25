@@ -14,7 +14,7 @@ from .extensions import csrf, db, migrate
 
 @event.listens_for(Engine, "connect")
 def _sqlite_pragmas(dbapi_conn, _record):
-    """SQLite ignores foreign keys (and ON DELETE CASCADE) unless asked."""
+    # sqlite has foreign keys off by default, so ON DELETE CASCADE does nothing without this
     if type(dbapi_conn).__module__.startswith("sqlite3"):
         cur = dbapi_conn.cursor()
         cur.execute("PRAGMA foreign_keys=ON")
@@ -32,7 +32,7 @@ def create_app(config: type[Config] = Config) -> Flask:
     migrate.init_app(app, db, directory=str(BACKEND_DIR / "migrations"))
     csrf.init_app(app)
 
-    from . import models  # noqa: F401  (register tables)
+    from . import models  # noqa: F401 - models have to be imported before create_all
     from .api import bp as api_bp
     from .auth import ApiError
     from .auth import bp as auth_bp
@@ -43,8 +43,8 @@ def create_app(config: type[Config] = Config) -> Flask:
     register_cli(app)
 
     with app.app_context():
-        # First run: create tables. Schema changes after this go through
-        # `flask db migrate` / `flask db upgrade` (see README).
+        # makes the tables on first run. for schema changes after that use
+        # flask db migrate + flask db upgrade
         db.create_all()
 
     @app.errorhandler(ApiError)
@@ -73,7 +73,7 @@ def create_app(config: type[Config] = Config) -> Flask:
     def health():
         return jsonify(ok=True)
 
-    # ---- Serve the built frontend (frontend/dist) -------------------------
+    # serve the built frontend
     dist = app.config["FRONTEND_DIST"]
 
     @app.get("/", defaults={"path": ""})
@@ -83,7 +83,7 @@ def create_app(config: type[Config] = Config) -> Flask:
             abort(404)
         if path and (dist / path).is_file():
             resp = send_from_directory(dist, path)
-            if path.startswith("assets/"):  # hashed filenames, safe to cache forever
+            if path.startswith("assets/"):  # vite hashes these names so they can be cached forever
                 resp.cache_control.max_age = 31536000
                 resp.cache_control.immutable = True
             return resp

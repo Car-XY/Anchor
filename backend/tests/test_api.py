@@ -1,7 +1,5 @@
-"""End-to-end API tests against an in-memory SQLite database.
-
-Run from the project root:  python -m pytest backend/tests
-"""
+# api tests against an in-memory sqlite db
+# run from the project root: python -m pytest backend/tests
 from datetime import date, timedelta
 
 
@@ -48,7 +46,7 @@ def test_habit_crud_and_logs(client, user):
     tomorrow = (date.fromisoformat(today) + timedelta(days=1)).isoformat()
     assert client.put(f"/api/habits/{hid}/logs/{tomorrow}", json={"done": True}).status_code == 400
 
-    # Narrowing the start date drops logs before it
+    # moving the start date later should drop the older logs
     res = client.patch(f"/api/habits/{hid}", json={"title": "Run far", "start": today, "color": "#5EC8E5"})
     assert res.get_json()["habits"][0]["done"] == []
 

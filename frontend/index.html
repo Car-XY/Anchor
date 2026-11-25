@@ -7,7 +7,7 @@
     <title>Anchor</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script>
-      // Apply the saved theme before first paint to avoid a flash.
+      // set the theme before first paint so it doesn't flash
       try {
         const t = JSON.parse(localStorage.getItem('anchor.theme') || '"system"');
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
@@ -22,10 +22,10 @@
       <div class="wave"><svg viewBox="0 0 2400 160" preserveAspectRatio="none"><path d="M0 60 Q200 15 400 60 T800 60 T1200 60 T1600 60 T2000 60 T2400 60 V160 H0Z" /></svg></div>
     </div>
 
-    <!-- Log in / register -->
+    <!-- login / register -->
     <section id="auth" class="relative z-10 grid min-h-dvh place-items-center p-6" hidden></section>
 
-    <!-- App shell -->
+    <!-- app -->
     <div id="app" class="relative z-10 grid min-h-dvh grid-cols-1 min-[821px]:grid-cols-[216px_minmax(0,1fr)]" hidden>
       <nav class="rail fixed inset-x-0 bottom-0 z-30 flex border-t border-line px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[821px]:sticky min-[821px]:top-0 min-[821px]:h-dvh min-[821px]:flex-col min-[821px]:border-t-0 min-[821px]:border-r min-[821px]:px-3.5 min-[821px]:py-5.5" aria-label="Main">
         <div class="hidden items-center gap-2.5 px-2.5 pb-6.5 font-serif text-[23px] min-[821px]:flex">

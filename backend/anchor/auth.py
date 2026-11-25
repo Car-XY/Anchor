@@ -16,7 +16,7 @@ bp = Blueprint("auth", __name__, url_prefix="/api")
 
 
 class ApiError(Exception):
-    """Raise from a route to return {"error": message} with a status code."""
+    """raise this from a route and it turns into a json error response"""
 
     def __init__(self, message: str, status: int = 400, field: str | None = None):
         super().__init__(message)
@@ -70,7 +70,7 @@ def _start_session(user: User):
 
 @bp.get("/session")
 def get_session():
-    """Who is logged in, plus the CSRF token the SPA sends back on writes."""
+    """current user + a csrf token for the frontend to send back on POST/PATCH/DELETE"""
     user = current_user()
     return jsonify(user=user.to_dict() if user else None, csrf=generate_csrf())
 
@@ -83,7 +83,7 @@ def register():
     if len(password) < 8:
         raise ApiError("Use at least 8 characters for your password.", field="password")
     if password != (data.get("confirmation") or ""):
-        raise ApiError("The passwords don’t match.", field="confirmation")
+        raise ApiError("The passwords don't match.", field="confirmation")
     taken = db.session.scalar(select(User.id).where(func.lower(User.username) == username.lower()))
     if taken:
         raise ApiError("That username is taken.", 409, field="username")
@@ -107,7 +107,7 @@ def login():
     username, password, data = _credentials()
     user = db.session.scalar(select(User).where(func.lower(User.username) == username.lower()))
     if user is None or not check_password_hash(user.password_hash, password):
-        raise ApiError("That username and password don’t match.", 401)
+        raise ApiError("That username and password don't match.", 401)
     tz = valid_timezone(data.get("timezone"))
     if tz and tz != user.timezone:
         user.timezone = tz

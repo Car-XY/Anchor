@@ -1,4 +1,4 @@
-// App state with a tiny subscribe/notify loop. Views re-render on change.
+// app state + a basic subscribe so views can re-render when it changes
 import { store } from './lib/util.js';
 
 const listeners = new Set();

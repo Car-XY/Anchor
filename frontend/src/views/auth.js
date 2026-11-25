@@ -42,7 +42,7 @@ export function renderAuth(root, { onSignedIn }) {
     form.querySelector('[data-confirm]').hidden = !reg;
     form.querySelector('[data-submit]').textContent = reg ? 'Create account' : 'Log in';
     $('#p', form).autocomplete = reg ? 'new-password' : 'current-password';
-    form.querySelector('[data-switch-text]').textContent = reg ? 'Already have an account?' : 'Don’t have an account?';
+    form.querySelector('[data-switch-text]').textContent = reg ? 'Already have an account?' : "Don't have an account?";
     form.querySelector('[data-switch]').textContent = reg ? 'Log in' : 'Register';
     err.textContent = '';
   }
@@ -55,7 +55,7 @@ export function renderAuth(root, { onSignedIn }) {
     const p2 = $('#p2', form).value;
     if (!u) return ((err.textContent = 'Enter your username.'), $('#u', form).focus());
     if (!p) return ((err.textContent = 'Enter your password.'), $('#p', form).focus());
-    if (mode === 'register' && p !== p2) return ((err.textContent = 'The passwords don’t match.'), $('#p2', form).focus());
+    if (mode === 'register' && p !== p2) return ((err.textContent = "The passwords don't match."), $('#p2', form).focus());
     const submit = form.querySelector('[data-submit]');
     submit.disabled = true;
     try {

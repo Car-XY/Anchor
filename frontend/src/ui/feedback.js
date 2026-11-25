@@ -1,4 +1,4 @@
-// Toasts and a themed confirm dialog (replaces the browser's confirm()).
+// toasts + a confirm dialog that matches the theme (finally replacing the browser confirm() popup)
 import { $ } from '../lib/util.js';
 
 export function toast(message, kind = 'info') {
@@ -33,7 +33,7 @@ export function confirmDialog({ title, body, confirm, danger = true }) {
   });
 }
 
-/** Run an API call, toast its error, and return null on failure. */
+// runs an api call and shows the error (toast, or inline if errorEl is given). null if it failed
 export async function attempt(fn, { errorEl } = {}) {
   try {
     if (errorEl) errorEl.textContent = '';

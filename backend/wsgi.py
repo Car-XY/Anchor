@@ -1,10 +1,10 @@
-"""Entry point for gunicorn (`wsgi:app`), `flask --app wsgi`, and Electron."""
+# entry point: gunicorn uses wsgi:app, electron runs this file directly
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load .env from the project root (one level up) or from backend/.
+# .env can be in the project root or in backend/
 for candidate in (Path(__file__).resolve().parent.parent / ".env", Path(__file__).resolve().parent / ".env"):
     if candidate.is_file():
         load_dotenv(candidate)

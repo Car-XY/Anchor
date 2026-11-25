@@ -1,4 +1,4 @@
-"""Database reads shaped into the plain data the services work with."""
+"""db queries -> the plain dataclasses that services/metrics.py uses"""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -20,7 +20,7 @@ def user_now(user: User) -> datetime:
 
 
 def user_today(user: User) -> date:
-    """'Today' in the user's own timezone, not the server's."""
+    """today's date for the user (railway runs in UTC so date.today() is wrong at night)"""
     return user_now(user).date()
 
 
@@ -29,7 +29,7 @@ def load_habits(user_id: int) -> list[HabitData]:
         select(Habit).where(Habit.user_id == user_id).order_by(Habit.id)
     ).all()
     done: dict[int, set[date]] = defaultdict(set)
-    # One query for every log, instead of one query per habit.
+    # all logs in one query (the old version did one query per habit)
     rows = db.session.execute(
         select(HabitLog.habit_id, HabitLog.completed_on)
         .join(Habit, Habit.id == HabitLog.habit_id)

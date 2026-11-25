@@ -1,8 +1,5 @@
-"""Anchor backend package.
-
-`create_app` is imported lazily so the pure services in `anchor.services`
-can be imported (and tested) without Flask extensions installed.
-"""
+# create_app is imported lazily so anchor.services can be imported (and tested)
+# without the flask extensions installed
 
 
 def create_app(*args, **kwargs):

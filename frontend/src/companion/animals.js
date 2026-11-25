@@ -1,6 +1,5 @@
-// Companion characters, drawn as inline SVG facing right (viewBox 0 0 120 90).
-// Each takes a mood that follows the sea state: calm = happy, open = focused,
-// storm = worried (brows up, a sweat drop).
+// companion characters as inline svg, all facing right (viewBox 0 0 120 90)
+// mood comes from the sea state: calm = happy, open = focused, storm = worried
 
 export const ANIMALS = {
   seal: { label: 'Seal', blurb: 'Patient and steady' },

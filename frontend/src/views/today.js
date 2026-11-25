@@ -28,13 +28,13 @@ export const today = {
           <div class="panel mx-auto mt-2 max-w-[440px] px-4 py-3 text-center">
             <div class="font-serif text-xl" data-state></div>
             <p class="mt-0.5 text-sm text-muted" data-line></p>
-            <p class="mt-2 text-[12.5px] text-faint max-[820px]:hidden">Each ring is a habit and each segment a day. The last 14 days run clockwise up to today, at the top. Tap today’s segment to log it.</p>
+            <p class="mt-2 text-[12.5px] text-faint max-[820px]:hidden">Each ring is a habit and each segment a day. The last 14 days run clockwise up to today, at the top. Tap today's segment to log it.</p>
           </div>
         </div>
         <div class="grid gap-4">
           <div class="panel watch overflow-hidden">
             <div class="flex items-baseline justify-between gap-3 px-4.5 pt-4 pb-3">
-              <h2 class="text-[22px]">Today’s habits</h2><span class="count" data-count></span>
+              <h2 class="text-[22px]">Today's habits</h2><span class="count" data-count></span>
             </div>
             <ul class="m-0 list-none p-0" data-list></ul>
             <div class="readouts" data-readouts></div>
@@ -69,7 +69,7 @@ export const today = {
     const due = ov.habits.filter((h) => h.due_today);
     $('[data-list]', root).innerHTML = due.length
       ? due.map(row).join('')
-      : `<li class="empty border-t border-line"><p>${ov.habits.length ? 'No habits are due today.' : 'Add your first habit. It’ll show up as a ring on your compass.'}</p><button class="btn btn-primary" data-new>Add a habit</button></li>`;
+      : `<li class="empty border-t border-line"><p>${ov.habits.length ? 'No habits are due today.' : "Add your first habit. It'll show up as a ring on your compass."}</p><button class="btn btn-primary" data-new>Add a habit</button></li>`;
 
     $('[data-readouts]', root).innerHTML = `
       <div class="readout"><b>${pct(s.hold_rate_7)}</b><span>Held this week</span></div>
@@ -87,7 +87,7 @@ export const today = {
 
     if (prevAllDone === false && s.all_done) {
       ripple($('.compass', root));
-      toast('Every habit held today. Anchor’s set.', 'ok');
+      toast("Every habit held today. Anchor's set.", 'ok');
     }
     prevAllDone = s.all_done;
   },
@@ -98,7 +98,7 @@ function row(h) {
   return `<li class="row${h.done_today ? ' done' : ''}" data-h="${h.id}" style="--c:${h.color}">
     <button class="check" data-toggle="${h.id}" aria-pressed="${h.done_today}" aria-label="${esc(h.title)}: ${h.done_today ? 'held today, select to undo' : 'mark as held today'}">${CHECK}</button>
     <div class="min-w-0"><div class="title font-semibold">${esc(h.title)}</div>${h.notes ? `<div class="truncate text-[13px] text-faint">${esc(h.notes)}</div>` : ''}</div>
-    <div class="text-right text-sm font-semibold whitespace-nowrap tabular-nums">${n ? plural(n, 'day') : '–'}<small class="block text-xs font-normal text-faint">${h.done_today ? 'Held today' : n ? 'Keep it going' : 'Start a streak'}</small></div>
+    <div class="text-right text-sm font-semibold whitespace-nowrap tabular-nums">${n ? plural(n, 'day') : '-'}<small class="block text-xs font-normal text-faint">${h.done_today ? 'Held today' : n ? 'Keep it going' : 'Start a streak'}</small></div>
   </li>`;
 }
 

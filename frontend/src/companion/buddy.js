@@ -1,6 +1,5 @@
-// The floating companion. It swims slowly around the lower part of the
-// screen (never over the nav), pauses when you hover it, and shows short
-// tips from /api/companion/nudge in a speech bubble.
+// floating companion. swims around the bottom part of the screen, stops when
+// you hover it, and shows tips from /api/companion/nudge
 import { api } from '../api.js';
 import { esc, prefersReducedMotion } from '../lib/util.js';
 import { seaState, state, subscribe } from '../state.js';
@@ -48,7 +47,7 @@ export function mountBuddy() {
     el.classList.toggle('left', nx < x - 1 || (Math.abs(nx - x) <= 1 && el.classList.contains('left')));
     x = nx;
     y = ny;
-    // Open the bubble towards the middle of the screen so it never clips.
+    // open the bubble towards the middle so it doesn't go off screen
     el.classList.toggle('bubble-right', x < innerWidth / 2);
     el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
   }
@@ -76,7 +75,7 @@ export function mountBuddy() {
   }
 
   function freeze() {
-    // Stop mid-swim exactly where it is.
+    // read the position out of the transform so it stops right where it is
     const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
     clearTimeout(timer);
     el.style.transitionDuration = '0s';
@@ -117,7 +116,7 @@ export function mountBuddy() {
     try {
       const { text } = await api.nudge();
       if (show && text && text !== lastTip && !document.hidden && visible) {
-        // On phones a bubble would cover the list, so just show a dot to tap.
+        // on phones the bubble covers too much, show a dot instead
         if (innerWidth <= 820) el.classList.add('has-tip');
         else say(text);
       }

@@ -4,7 +4,7 @@ from flask_wtf import CSRFProtect
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
-# Named constraints keep Alembic migrations stable across SQLite and Postgres.
+# alembic needs named constraints or migrations break (mostly on sqlite)
 naming = {
     "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -19,5 +19,5 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
-migrate = Migrate(render_as_batch=True)  # batch mode lets Alembic alter SQLite tables
+migrate = Migrate(render_as_batch=True)  # sqlite can't ALTER properly without batch mode
 csrf = CSRFProtect()

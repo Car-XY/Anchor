@@ -1,8 +1,6 @@
-"""Command-line helpers:
-
-    flask --app wsgi import-legacy ../backend/goal_tracker.db
-    flask --app wsgi seed-demo --username demo --password demo1234
-"""
+# run from backend/:
+#   flask --app wsgi import-legacy goal_tracker.db
+#   flask --app wsgi seed-demo --username demo --password demo1234
 from __future__ import annotations
 
 import sqlite3
@@ -23,7 +21,7 @@ def register_cli(app: Flask) -> None:
     @app.cli.command("import-legacy")
     @click.argument("path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
     def import_legacy(path: Path):
-        """Copy users, habits, logs and reflections from the old goal_tracker.db."""
+        """Copy users, habits, logs and reflections over from the old goal_tracker.db"""
         src = sqlite3.connect(path)
         src.row_factory = sqlite3.Row
         user_map: dict[int, int] = {}
@@ -37,7 +35,7 @@ def register_cli(app: Flask) -> None:
             if exists:
                 counts["skipped"] += 1
                 continue
-            # Old passwords were Werkzeug hashes too, so they keep working.
+            # old db used werkzeug hashes too so passwords carry over
             user = User(username=row["username"], password_hash=row["hash"])
             db.session.add(user)
             db.session.flush()
@@ -92,7 +90,7 @@ def register_cli(app: Flask) -> None:
     @click.option("--timezone", "tz", default="America/Toronto", show_default=True)
     @click.option("--rough", is_flag=True, help="Give the last week a rough patch to see the storm.")
     def seed_demo(username: str, password: str, tz: str, rough: bool):
-        """Create a demo account with six weeks of sample habits and reflections."""
+        """Make a demo account with ~6 weeks of fake habits and reflections"""
         if db.session.scalar(select(User).where(func.lower(User.username) == username.lower())):
             raise click.ClickException(f"User {username!r} already exists.")
         user = User(username=username, password_hash=generate_password_hash(password), timezone=tz)

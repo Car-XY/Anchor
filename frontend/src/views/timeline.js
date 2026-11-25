@@ -104,7 +104,7 @@ async function onClick(e) {
   try {
     const ov = await api.setLog(id, day, on);
     setState({ overview: ov, justLogged: on ? `${id}|${day}` : null });
-    toast(on ? `Logged “${h.title}” for ${fmt(day)}` : `Cleared “${h.title}” for ${fmt(day)}`, on ? 'ok' : 'info');
+    toast(on ? `Logged "${h.title}" for ${fmt(day)}` : `Cleared "${h.title}" for ${fmt(day)}`, on ? 'ok' : 'info');
   } catch (err) {
     toast(err.message, 'danger');
   }

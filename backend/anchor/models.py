@@ -15,7 +15,7 @@ def utcnow() -> datetime:
 
 
 def as_utc(value: datetime) -> datetime:
-    """SQLite hands datetimes back without a timezone; they were stored as UTC."""
+    """sqlite loses the timezone but everything is saved in utc anyway"""
     return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
@@ -28,11 +28,11 @@ class User(db.Model):
     timezone: Mapped[str] = mapped_column(String(64), default="UTC")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
-    # Companion preferences
+    # companion settings
     companion_animal: Mapped[str] = mapped_column(String(16), default="seal")
     companion_name: Mapped[str] = mapped_column(String(32), default="Pip")
     companion_roam: Mapped[bool] = mapped_column(default=True)
-    # Cache for the floating tip so we don't call the model on every page load
+    # last tip, so we don't call the model on every page load
     nudge_key: Mapped[str | None] = mapped_column(String(64))
     nudge_text: Mapped[str | None] = mapped_column(Text)
 
@@ -84,7 +84,7 @@ class Habit(db.Model):
 
 
 class HabitLog(db.Model):
-    """One row per day a habit was held."""
+    """one row per day a habit was done"""
 
     __tablename__ = "habit_logs"
 
@@ -116,7 +116,7 @@ class Reflection(db.Model):
 
 
 class ChatMessage(db.Model):
-    """The debrief conversation with the companion."""
+    """debrief chat history"""
 
     __tablename__ = "chat_messages"
 

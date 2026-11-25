@@ -1,5 +1,5 @@
-"""The AI companion: persona, data context, local fallback tips and the
-OpenRouter client. No database or Flask imports, so it's easy to test."""
+"""companion: system prompt, data summary for the model, fallback tips, openrouter call.
+no db/flask imports so the tests can import it directly"""
 from __future__ import annotations
 
 import hashlib
@@ -18,16 +18,14 @@ ANIMAL_NAMES = {
 
 
 class CompanionUnavailable(Exception):
-    """No API key configured."""
+    """no api key set"""
 
 
 class CompanionError(Exception):
-    """The model call failed; the message is safe to show the user."""
+    """model call failed, message is ok to show the user"""
 
 
-# --------------------------------------------------------------------------
-# Persona
-# --------------------------------------------------------------------------
+# --- persona ---
 
 def system_prompt(name: str, animal: str) -> str:
     who = ANIMAL_NAMES.get(animal, "a sea creature")
@@ -57,16 +55,14 @@ NUDGE_INSTRUCTION = (
 )
 
 
-# --------------------------------------------------------------------------
-# Data context
-# --------------------------------------------------------------------------
+# --- data the model gets ---
 
 def _pct(rate: float | None) -> str:
     return "no data yet" if rate is None else f"{round(rate * 100)}%"
 
 
 def build_context(ov: dict, now: datetime, timezone: str) -> str:
-    """Summarise the overview payload as text for the model."""
+    """overview -> plain text for the model"""
     today = date.fromisoformat(ov["today"])
     s = ov["summary"]
     lines = [
@@ -114,14 +110,12 @@ def build_context(ov: dict, now: datetime, timezone: str) -> str:
     if refs:
         lines.append("\nMost recent reflections:")
         for r in refs:
-            content = r["content"] if len(r["content"]) <= 700 else r["content"][:700] + "…"
+            content = r["content"] if len(r["content"]) <= 700 else r["content"][:700] + "..."
             lines.append(f"- {r['date']}, \"{r['title']}\": {content}")
     return "\n".join(lines)
 
 
-# --------------------------------------------------------------------------
-# Local tips (used when no API key is set, or when the model call fails)
-# --------------------------------------------------------------------------
+# --- fallback tips (no api key, or the call failed) ---
 
 def local_nudges(ov: dict, hour: int) -> list[str]:
     s = ov["summary"]
@@ -161,7 +155,7 @@ def local_nudges(ov: dict, hour: int) -> list[str]:
 
 
 def nudge_key(ov: dict, hour: int, animal: str, name: str) -> str:
-    """Changes when anything the tip depends on changes, so the cache stays fresh."""
+    """cache key - changes whenever anything the tip depends on changes"""
     s = ov["summary"]
     parts = [ov["today"], str(hour // 3), animal, name, s["sea_state"], str(s["done_today"]), str(s["due_today"])]
     parts += [f"{h['id']}:{h['streak']}:{int(h['done_today'])}" for h in ov["habits"]]
@@ -173,9 +167,7 @@ def pick_local(ov: dict, hour: int, seed: str) -> str:
     return tips[int(seed[:8], 16) % len(tips)] if seed else tips[0]
 
 
-# --------------------------------------------------------------------------
-# OpenRouter
-# --------------------------------------------------------------------------
+# --- openrouter ---
 
 def openrouter_chat(
     messages: list[dict],
@@ -196,7 +188,7 @@ def openrouter_chat(
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
-                # Optional attribution headers OpenRouter uses for its app rankings
+                # optional, openrouter uses these for its app rankings
                 "HTTP-Referer": app_url,
                 "X-Title": "Anchor",
             },
@@ -204,7 +196,7 @@ def openrouter_chat(
             timeout=timeout,
         )
     except requests.RequestException as exc:
-        raise CompanionError("Couldn’t reach the companion service. Check your connection and try again.") from exc
+        raise CompanionError("Couldn't reach the companion service. Check your connection and try again.") from exc
     if res.status_code == 401:
         raise CompanionError("The OpenRouter API key was rejected. Check OPENROUTER_API_KEY in your .env.")
     if res.status_code == 402:

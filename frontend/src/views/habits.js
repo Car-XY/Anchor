@@ -7,7 +7,7 @@ let root;
 
 export const habits = {
   title: () => 'Habits',
-  sub: () => 'Add, edit and retire the habits you’re tracking.',
+  sub: () => "Add, edit and retire the habits you're tracking.",
 
   mount(el) {
     root = el;
@@ -33,7 +33,7 @@ export const habits = {
     if (!root || !ov) return;
     $('[data-count]', root).textContent = plural(ov.habits.length, 'habit');
     if (!ov.habits.length) {
-      $('[data-table]', root).innerHTML = `<div class="empty border-t border-line"><p>Add your first habit. It’ll show up as a ring on your compass.</p><button class="btn btn-primary" data-new>Add a habit</button></div>`;
+      $('[data-table]', root).innerHTML = `<div class="empty border-t border-line"><p>Add your first habit. It'll show up as a ring on your compass.</p><button class="btn btn-primary" data-new>Add a habit</button></div>`;
       return;
     }
     $('[data-table]', root).innerHTML = `
@@ -53,7 +53,7 @@ function tableRow(h, today) {
     <td><div class="flex min-w-[180px] items-center gap-3"><span class="dot"></span><div><b>${esc(h.title)}</b>${h.notes ? `<small class="block text-[13px] text-faint">${esc(h.notes)}</small>` : ''}</div></div></td>
     <td class="text-sm whitespace-nowrap text-muted max-sm:hidden">${dates}${tag}</td>
     <td class="num"><span class="bar"><i style="width:${h.rate30 == null ? 0 : Math.round(h.rate30 * 100)}%"></i></span>${pct(h.rate30)}</td>
-    <td class="num">${h.streak ? plural(h.streak, 'day') : '–'}</td>
+    <td class="num">${h.streak ? plural(h.streak, 'day') : '-'}</td>
     <td class="text-right whitespace-nowrap">
       <button class="icon-btn" data-edit="${h.id}" aria-label="Edit ${esc(h.title)}" title="Edit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
       <button class="icon-btn" data-del="${h.id}" aria-label="Delete ${esc(h.title)}" title="Delete"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 13h9l1-13"/></svg></button>
@@ -64,15 +64,15 @@ async function deleteHabit(id) {
   const h = state.overview.habits.find((x) => x.id === id);
   if (!h) return;
   const ok = await confirmDialog({
-    title: `Delete “${h.title}”?`,
-    body: `This removes the habit and its ${plural(h.done.length, 'logged day')}. It can’t be undone.`,
+    title: `Delete "${h.title}"?`,
+    body: `This removes the habit and its ${plural(h.done.length, 'logged day')}. It can't be undone.`,
     confirm: 'Delete habit',
   });
   if (!ok) return;
   const ov = await attempt(() => api.deleteHabit(id));
   if (ov) {
     setState({ overview: ov });
-    toast(`Deleted “${h.title}”`, 'danger');
+    toast(`Deleted "${h.title}"`, 'danger');
   }
 }
 
@@ -134,7 +134,7 @@ export function openHabitDialog(id) {
     if (!next) return;
     dlg.close();
     setState({ overview: next });
-    toast(editing ? `Saved changes to “${data.title}”` : `Added “${data.title}”`, 'ok');
+    toast(editing ? `Saved changes to "${data.title}"` : `Added "${data.title}"`, 'ok');
   };
 
   dlg.showModal();

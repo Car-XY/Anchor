@@ -1,4 +1,4 @@
-// Thin JSON client for the Flask API. Writes carry the CSRF token.
+// fetch wrapper for the flask api, adds the csrf header on writes
 let csrf = '';
 
 export class ApiError extends Error {
@@ -20,7 +20,7 @@ async function request(method, path, data) {
   try {
     res = await fetch(`/api${path}`, opts);
   } catch {
-    throw new ApiError('Can’t reach Anchor. Check your connection and try again.', 0);
+    throw new ApiError("Can't reach Anchor. Check your connection and try again.", 0);
   }
   const body = await res.json().catch(() => ({}));
   if (body.csrf) csrf = body.csrf;

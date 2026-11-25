@@ -12,7 +12,7 @@ def _database_url() -> str:
         instance = BACKEND_DIR / "instance"
         instance.mkdir(exist_ok=True)
         return f"sqlite:///{instance / 'anchor.db'}"
-    # Railway/Heroku hand out postgres://; SQLAlchemy wants an explicit driver.
+    # railway gives postgres:// urls but sqlalchemy needs the driver in the url
     if url.startswith("postgres://"):
         url = "postgresql+psycopg://" + url[len("postgres://"):]
     elif url.startswith("postgresql://"):
@@ -25,18 +25,18 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
-    # Signed-cookie sessions: no server-side session files to clean up.
+    # flask's normal signed cookie sessions (no more flask_session folder)
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "").lower() in {"1", "true", "yes"}
 
-    # The SPA sends the CSRF token in the X-CSRFToken header.
+    # frontend sends the token in the X-CSRFToken header
     WTF_CSRF_TIME_LIMIT = None
 
     FRONTEND_DIST = Path(os.environ.get("FRONTEND_DIST", REPO_DIR / "frontend" / "dist"))
 
-    # AI companion (OpenRouter). Leave the key empty until you set it in .env.
+    # companion uses openrouter. key goes in .env
     OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
     OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.5").strip()
     OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")

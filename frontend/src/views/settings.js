@@ -56,7 +56,7 @@ export const settings = {
             <dt class="text-muted">Timezone</dt><dd class="m-0" data-tz>${esc(state.user.timezone)}</dd>
           </dl>
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn" data-sync-tz>Use this device’s timezone</button>
+            <button class="btn" data-sync-tz>Use this device's timezone</button>
             <button class="btn btn-danger" data-logout>Log out</button>
           </div>
         </section>

@@ -1,5 +1,5 @@
-// The habit compass: one ring per habit, one segment per day for the last
-// 14 days, running clockwise up to today at the top.
+// habit compass: a ring per habit, a segment per day, last 14 days going
+// clockwise with today at the top
 import { addDays, esc, fmt, parse } from '../lib/util.js';
 
 const N = 14;

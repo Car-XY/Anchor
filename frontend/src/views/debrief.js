@@ -8,7 +8,7 @@ const PROMPTS = [
   'Debrief my day',
   'Why do I keep missing a habit?',
   'Help me plan tomorrow',
-  'I’m feeling unmotivated',
+  "I'm feeling unmotivated",
 ];
 
 let root;
@@ -112,9 +112,9 @@ function draw({ typing = false } = {}) {
   let html = messages.map(bubble).join('');
   if (!messages.length) {
     html = state.companion.configured
-      ? `<div class="msg assistant"><p>Hi, I’m ${esc(c.name)}. I can see your habits, streaks and reflections. Tell me how today went, or pick one of the prompts below.</p></div>`
+      ? `<div class="msg assistant"><p>Hi, I'm ${esc(c.name)}. I can see your habits, streaks and reflections. Tell me how today went, or pick one of the prompts below.</p></div>`
       : `<div class="empty mx-auto max-w-[52ch]">
-           <p class="font-serif text-xl text-ink">${esc(c.name)} isn’t connected yet</p>
+           <p class="font-serif text-xl text-ink">${esc(c.name)} isn't connected yet</p>
            <p>The debrief chat uses OpenRouter. Add your key as <code>OPENROUTER_API_KEY</code> in the <code>.env</code> file at the project root, then restart Anchor. Until then, ${esc(c.name)} still gives tips from your data while swimming around.</p>
          </div>`;
   }

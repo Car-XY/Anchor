@@ -1,7 +1,6 @@
-"""Progress metrics: streaks, hold rates and the sea state.
+"""streaks, hold rates and the sea state.
 
-Everything here works on plain data (no database, no Flask), so it is easy to
-test and is shared by the API, the AI companion and the CLI.
+no db or flask in here so it's easy to test. used by the api, the companion and the cli.
 """
 from __future__ import annotations
 
@@ -9,10 +8,10 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Iterable
 
-# Sea-state thresholds, as a share of due habits held over the last 7 days.
+# % of due habits held over the last 7 days
 CALM_AT = 0.75
 OPEN_AT = 0.45
-TIMELINE_DAYS = 400  # how much log history the client needs for the timeline
+TIMELINE_DAYS = 400  # timeline only needs about a year of logs
 
 
 @dataclass
@@ -38,10 +37,10 @@ class ReflectionData:
 
 
 def streak(habit: HabitData, today: date) -> int:
-    """Consecutive held days ending today.
+    """days in a row ending today.
 
-    An unticked *today* does not break the run: the streak counts back from
-    yesterday until the user has had the whole day to log it.
+    if today isn't ticked yet, count from yesterday instead. the old version
+    started at today, so every streak showed 0 until you logged something
     """
     day = today if today in habit.done else today - timedelta(days=1)
     count = 0
@@ -62,10 +61,9 @@ def longest_streak(habit: HabitData) -> int:
 
 
 def hold_rate(habits: Iterable[HabitData], today: date, days: int) -> float | None:
-    """Share of due habit-days held over the last ``days`` days.
+    """fraction of due habit-days that got done in the last `days` days.
 
-    Today only counts once it is done, so the morning doesn't look like a
-    failure. Returns None when nothing was due.
+    today only counts once it's done. None if nothing was due
     """
     due = held = 0
     for offset in range(days):
@@ -107,7 +105,7 @@ def habit_payload(h: HabitData, today: date) -> dict:
 
 
 def overview(habits: list[HabitData], reflections: list[ReflectionData], today: date) -> dict:
-    """Everything the dashboard needs in one payload."""
+    """everything the frontend needs in one response"""
     rate7 = hold_rate(habits, today, 7)
     payload_habits = [habit_payload(h, today) for h in habits]
     due = [h for h in payload_habits if h["due_today"]]

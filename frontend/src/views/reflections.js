@@ -8,7 +8,7 @@ let editingId = null;
 
 export const reflections = {
   title: () => 'Reflections',
-  sub: () => 'Notes on your progress and how you’re feeling.',
+  sub: () => "Notes on your progress and how you're feeling.",
 
   mount(el) {
     root = el;
@@ -19,7 +19,7 @@ export const reflections = {
           <h2 class="mb-4 text-[22px]" data-form-title>New reflection</h2>
           <div class="field"><label for="rTitle">Title</label><input class="input" type="text" id="rTitle" maxlength="160" required></div>
           <div class="field"><label for="rDate">Date</label><input class="input" type="date" id="rDate" required></div>
-          <div class="field"><label for="rBody">How did it go?</label><textarea class="input" id="rBody" required placeholder="What went well, what slipped, how you’re feeling…"></textarea></div>
+          <div class="field"><label for="rBody">How did it go?</label><textarea class="input" id="rBody" required placeholder="What went well, what slipped, how you're feeling..."></textarea></div>
           <p class="err" role="alert"></p>
           <div class="flex gap-2">
             <button class="btn btn-primary" type="submit" data-save>Save reflection</button>
@@ -113,7 +113,7 @@ async function save(e) {
 async function remove(id) {
   const r = state.overview.reflections.find((x) => x.id === id);
   if (!r) return;
-  const ok = await confirmDialog({ title: `Delete “${r.title}”?`, body: 'This reflection will be gone for good.', confirm: 'Delete reflection' });
+  const ok = await confirmDialog({ title: `Delete "${r.title}"?`, body: 'This reflection will be gone for good.', confirm: 'Delete reflection' });
   if (!ok) return;
   const ov = await attempt(() => api.deleteReflection(id));
   if (ov) {

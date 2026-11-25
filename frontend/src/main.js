@@ -30,7 +30,7 @@ const LABELS = { today: 'Today', habits: 'Habits', reflections: 'Reflections', t
 const icon = (name, size = 20) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 
-// ---------------------------------------------------------------- ocean
+// ocean
 let ocean = null;
 try {
   ocean = createOcean($('#ocean'), { reducedMotion: prefersReducedMotion() });
@@ -60,7 +60,7 @@ function applySea({ instant = false } = {}) {
   ocean?.setSea(sea, { instant });
 }
 
-// ---------------------------------------------------------------- shell
+// nav, header, routing
 const buddy = mountBuddy();
 let current = null;
 
@@ -79,7 +79,7 @@ function renderTools() {
     s?.hold_rate_7 == null
       ? 'Once you have a few days logged, the sea follows how well your habits held over the last 7 days.'
       : `You held ${pct(s.hold_rate_7)} of due habits over the last 7 days. 75% or more keeps the harbour calm; under 45% brings a storm.`;
-  const preview = state.seaPreview !== 'auto' ? ' You’re previewing a sea state, so your own isn’t shown right now.' : '';
+  const preview = state.seaPreview !== 'auto' ? " You're previewing a sea state, so your own isn't shown right now." : '';
   const open = $('#seaCtl')?.open;
   $('#tools').innerHTML = `
     <details class="relative" id="seaCtl"${open ? ' open' : ''}>
@@ -147,7 +147,7 @@ subscribe((s, patch) => {
   }
 });
 
-// ---------------------------------------------------------------- session
+// login state
 async function enterApp(user, { welcome } = {}) {
   setState({ user });
   $('#auth').hidden = true;
@@ -191,7 +191,7 @@ window.addEventListener('anchor:logout', async () => {
   toast('Logged out');
 });
 
-// Refresh when the window comes back after a while (e.g. the next morning).
+// refetch if the window was hidden for a while (e.g. left open overnight)
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', async () => {
   if (document.hidden) return void (hiddenAt = Date.now());

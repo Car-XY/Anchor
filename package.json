@@ -2,6 +2,9 @@
   "name": "anchor",
   "version": "2.0.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "description": "Anchor: a habit and wellbeing tracker with a sea that follows your progress.",
   "main": "main.js",
   "type": "commonjs",

@@ -2,6 +2,7 @@
 providers = ["python", "node"]
 
 [variables]
+NIXPACKS_NODE_VERSION = "22"  # vite 7 and tailwind 4 need node 20+, nixpacks defaults to 18
 ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
 
 [phases.build]

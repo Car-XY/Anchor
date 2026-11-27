@@ -62,7 +62,7 @@ def nudge():
         return jsonify(text=user.nudge_text, source="cache")
     if _configured():
         try:
-            tip = _ask(user, [{"role": "user", "content": NUDGE_INSTRUCTION}], ov, max_tokens=80, temperature=0.8)
+            tip = _ask(user, [{"role": "user", "content": NUDGE_INSTRUCTION}], ov, max_tokens=800, temperature=0.8)
             tip = tip.strip().strip('"').splitlines()[0][:220]
             user.nudge_key, user.nudge_text = key, tip
             db.session.commit()

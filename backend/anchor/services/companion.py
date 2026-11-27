@@ -176,7 +176,9 @@ def openrouter_chat(
     model: str,
     base_url: str = "https://openrouter.ai/api/v1",
     app_url: str = "",
-    max_tokens: int = 500,
+    # thinking models (gemini 3, newer claude) count their thinking towards this,
+    # so it has to leave room for that. you only pay for what's actually used
+    max_tokens: int = 2000,
     temperature: float = 0.7,
     timeout: float = 45,
 ) -> str:
@@ -204,11 +206,21 @@ def openrouter_chat(
     if res.status_code == 429:
         raise CompanionError("The companion is getting too many requests. Try again in a minute.")
     if not res.ok:
-        raise CompanionError(f"The companion service returned an error ({res.status_code}). Try again shortly.")
+        try:
+            detail = res.json()["error"]["message"]
+        except (ValueError, KeyError, TypeError):
+            detail = ""
+        raise CompanionError(
+            f"The companion service returned an error ({res.status_code}){': ' + detail[:200] if detail else ''}. Try again shortly."
+        )
     try:
-        content = res.json()["choices"][0]["message"]["content"]
+        choice = res.json()["choices"][0]
+        content = choice["message"]["content"]
     except (ValueError, KeyError, IndexError, TypeError) as exc:
         raise CompanionError("The companion sent back an empty reply. Try again.") from exc
     if not content or not content.strip():
+        if choice.get("finish_reason") == "length":
+            # the model spent the whole token budget thinking
+            raise CompanionError("The model ran out of room before answering. Try again, or pick a model that thinks less.")
         raise CompanionError("The companion sent back an empty reply. Try again.")
     return content.strip()

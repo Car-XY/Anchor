@@ -33,7 +33,7 @@ frontend/
     companion/            animal SVGs and the floating companion
     views/                today, habits, reflections, timeline, debrief, settings, auth
     styles/main.css       Tailwind v4 + design tokens
-vite.config.js            Vite builds frontend/ → frontend/dist
+vite.config.mjs            Vite builds frontend/ → frontend/dist
 main.js                   Electron shell
 ```
 
